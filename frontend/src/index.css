@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+:root {
+  --color-neon-green: #00ff88;
+  --color-neon-cyan: #00d4ff;
+  --color-neon-purple: #b44aff;
+  --color-neon-pink: #ff2d95;
+  --color-dark-bg: #0a0a1a;
+  --color-dark-surface: #12122a;
+  --color-dark-card: #1a1a3e;
+  --color-dark-border: rgba(255,255,255,0.08);
+  --color-text-primary: #e8e8f0;
+  --color-text-secondary: #8888aa;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: 'Space Grotesk', sans-serif;
+  background: var(--color-dark-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: var(--color-dark-bg); }
+::-webkit-scrollbar-thumb { background: rgba(0,255,136,0.3); border-radius: 4px; }
+
+.neon-text { color: var(--color-neon-green); text-shadow: 0 0 10px rgba(0,255,136,0.5); }
+.neon-border { border: 1px solid rgba(0,255,136,0.3); box-shadow: 0 0 15px rgba(0,255,136,0.1); }
+.glass { background: rgba(18,18,42,0.8); backdrop-filter: blur(20px); border: 1px solid var(--color-dark-border); }
+.gradient-text { background: linear-gradient(135deg, var(--color-neon-green), var(--color-neon-cyan)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+.btn-neon {
+  background: linear-gradient(135deg, var(--color-neon-green), var(--color-neon-cyan));
+  color: #0a0a1a; font-weight: 600; padding: 0.75rem 2rem; border-radius: 8px;
+  border: none; cursor: pointer; transition: all 0.3s; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem;
+}
+.btn-neon:hover { box-shadow: 0 0 20px rgba(0,255,136,0.4); transform: translateY(-2px); }
+
+.btn-outline {
+  background: transparent; color: var(--color-neon-green); border: 1px solid var(--color-neon-green);
+  padding: 0.75rem 2rem; border-radius: 8px; cursor: pointer; transition: all 0.3s; font-weight: 500;
+}
+.btn-outline:hover { background: rgba(0,255,136,0.1); }
+
+.grid-bg {
+  background-image: linear-gradient(rgba(0,255,136,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,255,136,0.03) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+
+@keyframes pulse-glow { 0%,100% { box-shadow: 0 0 20px rgba(0,255,136,0.2); } 50% { box-shadow: 0 0 40px rgba(0,255,136,0.4); } }
+.animate-pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
