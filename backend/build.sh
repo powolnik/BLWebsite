@@ -21,7 +21,7 @@ npm --version
 cd ../frontend
 npm install
 VITE_API_URL="" npm run build
-echo "React zbudowany"
+echo "React zbudowany!"
 
 echo "=== [3/7] Kopiowanie React builda do Django ==="
 rm -rf ../backend/frontend_dist
