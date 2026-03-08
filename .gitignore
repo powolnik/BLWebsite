@@ -1,3 +1,7 @@
-.aider*
+# .aider*
 __pycache__
 .qodo/*
+.conda/*
+.env
+goose-x86_64-pc-windows-gnu.zip
+.aider*
