@@ -5,12 +5,16 @@
 databases:
   - name: synapse-db
     databaseName: synapse
- 
+    user: synapse
+    plan: free
+    region: frankfurt
 
 services:
   - type: web
-    name: blacklight-collective
+    name: synapse-collective
     runtime: python
+    plan: free
+    region: frankfurt
     rootDir: backend
     buildCommand: bash build.sh
     startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
