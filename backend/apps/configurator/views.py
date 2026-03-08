@@ -89,3 +89,20 @@ class OrderViewSet(viewsets.ModelViewSet):
         """Podsumowanie zuzycia mocy i wagi."""
         order = self.get_object()
         return Response(ConfiguratorService.calculate_power_summary(order))
+
+    @action(detail=True, methods=['get'])
+    def scene_3d(self, request, pk=None):
+        """Get 3D scene data for order"""
+        order = self.get_object()
+        from .services import Scene3DService
+        scene_data = Scene3DService.compose_scene(order)
+        return Response(scene_data)
+
+    @action(detail=True, methods=['post'])
+    def export_3d(self, request, pk=None):
+        """Export 3D scene as GLTF/OBJ"""
+        order = self.get_object()
+        format_type = request.data.get('format', 'gltf')
+        from .services import Scene3DService
+        export_data = Scene3DService.export_scene(order, format_type)
+        return Response(export_data)

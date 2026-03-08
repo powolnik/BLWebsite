@@ -74,7 +74,11 @@ class Component(models.Model):
     is_available = models.BooleanField('Dostepny', default=True)
     max_quantity = models.PositiveIntegerField('Maks. ilosc', default=20)
     created_at = models.DateTimeField(auto_now_add=True)
-
+    model_3d = models.FileField(upload_to='models/3d/', null=True, blank=True)
+    model_format = models.CharField(max_length=10, choices=[('gltf', 'GLTF'), ('obj', 'OBJ')])
+    scale_factor = models.FloatField(default=1.0)
+    default_position = models.JSONField(default=dict)  # {x, y, z}
+    default_rotation = models.JSONField(default=dict)  # {x, y, z}
     class Meta:
         ordering = ['category', 'name']
         verbose_name = 'Moduł sceny'
@@ -162,3 +166,14 @@ class OrderItem(models.Model):
         self.unit_price = self.component.price
         self.subtotal = self.unit_price * self.quantity
         super().save(*args, **kwargs)
+class Scene3D(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    scene_data = models.JSONField()  # Camera, lighting, environment
+    export_format = models.CharField(max_length=20, default='gltf')
+
+class ComponentPlacement(models.Model):
+    scene = models.ForeignKey(Scene3D, on_delete=models.CASCADE)
+    component = models.ForeignKey(Component, on_delete=models.CASCADE)
+    position = models.JSONField()  # {x, y, z}
+    rotation = models.JSONField()  # {x, y, z}
+    scale = models.JSONField(default=lambda: {'x': 1, 'y': 1, 'z': 1})
