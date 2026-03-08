@@ -30,5 +30,5 @@ else:
 if not settings.DEBUG:
     from config.views import spa_index
     urlpatterns += [
-        re_path(r'^(?!api/|admin/|static/|media/|assets/|.*?\.[a-z0-9]{2,4}$).*$', spa_index),
+        re_path(r'^(?!api/|admin/|static/|media/|assets/).*$', spa_index),
     ]

@@ -8,4 +8,3 @@ psycopg2-binary>=2.9
 whitenoise>=6.5
 dj-database-url>=2.1
 Pillow>=10.2
-trimesh>=3.9

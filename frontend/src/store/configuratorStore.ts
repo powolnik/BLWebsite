@@ -50,18 +50,24 @@ export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
 
   fetchData: async () => {
     set({ isLoading: true });
-    try {
-      const [templates, categories] = await Promise.all([
-        configuratorService.getTemplates(),
-        configuratorService.getCategories(),
-      ]);
-      set({ templates, categories, isLoading: false });
-      if (categories.length > 0) {
-        set({ activeCategory: categories[0].slug });
-      }
-    } catch {
-      set({ isLoading: false });
-      toast.error('Nie udało się załadować danych konfiguratora');
+    const [templatesResult, categoriesResult] = await Promise.allSettled([
+      configuratorService.getTemplates(),
+      configuratorService.getCategories(),
+    ]);
+
+    const templates = templatesResult.status === 'fulfilled' ? templatesResult.value : [];
+    const categories = categoriesResult.status === 'fulfilled' ? categoriesResult.value : [];
+
+    if (templatesResult.status === 'rejected') {
+      toast.error('Nie udało się załadować szablonów scen');
+    }
+    if (categoriesResult.status === 'rejected') {
+      toast.error('Nie udało się załadować kategorii komponentów');
+    }
+
+    set({ templates, categories, isLoading: false });
+    if (categories.length > 0) {
+      set({ activeCategory: categories[0].slug });
     }
   },
 

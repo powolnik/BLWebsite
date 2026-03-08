@@ -13,10 +13,28 @@ export default function Configurator() {
     fetchData();
   }, [fetchData]);
 
-  if (isLoading || categories.length === 0) {
+  if (isLoading) {
     return (
       <div className="grid-bg min-h-screen flex items-center justify-center">
         <Loader />
+      </div>
+    );
+  }
+
+  if (categories.length === 0) {
+    return (
+      <div className="grid-bg min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-4">
+          <p className="text-lg text-[var(--color-text-secondary)]">
+            Nie udało się załadować kategorii konfiguratora.
+          </p>
+          <button
+            onClick={fetchData}
+            className="text-sm text-[var(--color-neon-green)] hover:underline"
+          >
+            Spróbuj ponownie
+          </button>
+        </div>
       </div>
     );
   }
