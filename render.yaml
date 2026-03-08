@@ -1,0 +1,51 @@
+# render.yaml — Infrastructure as Code dla Render
+# Po pushu na repo, Render automatycznie skonfiguruje wszystkie serwisy
+
+databases:
+  - name: blw
+    databaseName: blw
+    plan: free
+   
+services:
+  # --- BACKEND (Django) ---
+  - type: web
+    name: blw
+    runtime: python
+    rootDir: backend
+    buildCommand: |
+      pip install -r requirements.txt &&
+      python manage.py collectstatic --noinput &&
+      python manage.py migrate
+    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    envVars:
+      - key: DJANGO_SETTINGS_MODULE
+        value: config.settings.prod
+      - key: PYTHON_VERSION
+        value: 3.12.0
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
+      - key: ALLOWED_HOSTS
+        value: .onrender.com
+      - key: DATABASE_URL
+        fromDatabase:
+          name: blw
+          property: connectionString
+      - key: CORS_ALLOWED_ORIGINS
+        value: https://synapse-frontend.onrender.com
+
+  # --- FRONTEND (React/Vite) ---
+  - type: web
+    name: synapse-frontend
+    runtime: static
+    
+   
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: dist
+    envVars:
+      - key: VITE_API_URL
+        value: https://synapse-backend.onrender.com/api
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
