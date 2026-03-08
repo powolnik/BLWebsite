@@ -29,6 +29,7 @@ if FRONTEND_DIR.exists():
 # STATICFILES_DIRS tylko dla Django's own static files
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
+    BASE_DIR / 'frontend_dist',
 ]
 
 # --- SECURITY ---
