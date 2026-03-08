@@ -2,15 +2,15 @@
 # Po pushu na repo, Render automatycznie skonfiguruje wszystkie serwisy
 
 databases:
-  - name: bwl
-    databaseName: bwl
+  - name: blw
+    databaseName: blw
     plan: free
     region: frankfurt
 
 services:
   # --- BACKEND (Django) ---
   - type: web
-    name: bwl
+    name: blw
     runtime: python
     plan: free
     rootDir: backend
@@ -30,7 +30,7 @@ services:
         value: .onrender.com
       - key: DATABASE_URL
         fromDatabase:
-          name: synapse-db
+          name: blw
           property: connectionString
       - key: CORS_ALLOWED_ORIGINS
         value: https://synapse-frontend.onrender.com
