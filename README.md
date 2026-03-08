@@ -40,7 +40,7 @@ docker-compose exec backend python manage.py createsuperuser
 # Backend
 cd backend
 python -m venv .venv && source .venv/bin/activate
-pip install -r requirements/dev.txt
+pip install -r requirements.txt
 cp .env.example .env  # edytuj DATABASE_URL na lokalny postgres
 python manage.py migrate
 python manage.py createsuperuser
