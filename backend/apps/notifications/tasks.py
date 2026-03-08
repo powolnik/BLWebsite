@@ -15,7 +15,7 @@ def send_order_confirmation_email(order_id, order_type='scene'):
             f'Twoje zamowienie sceny na {order.event_name} zostalo zlozone.\n'
             f'Status: {order.get_status_display()}\n'
             f'Kwota: {order.total_price} PLN\n\n'
-            f'Zespol SYNAPSE Collective'
+            f'Zespol BLACK LIGHT Collective'
         )
     else:
         from apps.shop.models import ShopOrder
@@ -25,7 +25,7 @@ def send_order_confirmation_email(order_id, order_type='scene'):
             f'Czesc {order.user.first_name},\n\n'
             f'Twoje zamowienie ze sklepu zostalo zlozone.\n'
             f'Kwota: {order.grand_total} PLN\n\n'
-            f'Zespol SYNAPSE Collective'
+            f'Zespol BLACK LIGHT Collective'
         )
 
     NotificationService.send_email(order.user.email, subject, body)

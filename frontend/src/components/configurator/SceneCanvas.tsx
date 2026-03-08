@@ -35,7 +35,7 @@ export default function SceneCanvas() {
             <div className="text-center text-[var(--color-text-secondary)]">
               <div className="text-4xl mb-2 opacity-30">🎭</div>
               <p className="text-sm">Kliknij moduł po lewej, aby dodać go do sceny</p>
-              <p className="text-xs mt-1 opacity-50">Twórz swoją unikalną scenę z modułów Synapse</p>
+              <p className="text-xs mt-1 opacity-50">Twórz swoją unikalną scenę z modułów Black Light</p>
             </div>
           ) : (
             <div className="w-full h-full p-4 flex flex-wrap content-center justify-center gap-3">

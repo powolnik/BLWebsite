@@ -14,7 +14,7 @@ export default function Login() {
     <div className="grid-bg min-h-screen flex items-center justify-center px-4">
       <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="w-full max-w-md p-8 rounded-2xl bg-[var(--color-dark-card)] border border-[var(--color-dark-border)]">
         <h1 className="text-2xl font-bold text-center mb-2">Logowanie</h1>
-        <p className="text-sm text-[var(--color-text-secondary)] text-center mb-8">Witaj w SYNAPSE</p>
+        <p className="text-sm text-[var(--color-text-secondary)] text-center mb-8">Witaj w BLACK LIGHT</p>
         <form onSubmit={submit} className="space-y-4">
           <Input label="Login" value={u} onChange={e => setU(e.target.value)} required />
           <Input label="Haslo" type="password" value={p} onChange={e => setP(e.target.value)} required />

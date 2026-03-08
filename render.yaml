@@ -1,17 +1,17 @@
-# render.yaml — BLWebsite / SYNAPSE Collective
+# render.yaml — BLWebsite / BLACK LIGHT Collective
 # JEDEN serwis obsługuje API + Frontend = zero dodatkowych kosztów!
 # Użycie: Render Dashboard → New → Blueprint → wybierz repo
 
 databases:
-  - name: synapse-db
-    databaseName: synapse
-    user: synapse
+  - name: blacklight-db
+    databaseName: blacklight
+    user: blacklight
     plan: free
     region: frankfurt
 
 services:
   - type: web
-    name: synapse-collective
+    name: blacklight-collective
     runtime: python
     plan: free
     region: frankfurt
@@ -29,5 +29,5 @@ services:
         value: .onrender.com
       - key: DATABASE_URL
         fromDatabase:
-          name: synapse-db
+          name: blacklight-db
           property: connectionString

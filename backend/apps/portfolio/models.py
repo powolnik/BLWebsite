@@ -2,7 +2,7 @@ from django.db import models
 
 
 class TeamMember(models.Model):
-    """Czlonek kolektywu SYNAPSE."""
+    """Czlonek kolektywu BLACK LIGHT."""
     name = models.CharField('Imie i nazwisko', max_length=200)
     role = models.CharField('Rola', max_length=200)
     bio = models.TextField('Bio')

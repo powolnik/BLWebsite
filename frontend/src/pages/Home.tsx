@@ -19,7 +19,7 @@ export default function Home() {
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }} className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-[var(--color-dark-card)] neon-border flex items-center justify-center">
             <Zap className="w-10 h-10 text-[var(--color-neon-green)]" />
           </motion.div>
-          <h1 className="text-5xl md:text-7xl font-bold mb-6"><span className="gradient-text">SYNAPSE</span><br /><span className="text-2xl md:text-3xl font-light text-[var(--color-text-secondary)]">Collective</span></h1>
+          <h1 className="text-5xl md:text-7xl font-bold mb-6"><span className="gradient-text">BLACK LIGHT</span><br /><span className="text-2xl md:text-3xl font-light text-[var(--color-text-secondary)]">Collective</span></h1>
           <p className="text-lg md:text-xl text-[var(--color-text-secondary)] mb-8 max-w-2xl mx-auto">Tworzymy niezapomniane sceny na festiwalach muzyki elektronicznej. Oswietlenie, dekoracje, efekty specjalne.</p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link to="/configurator"><Button size="lg">Skonfiguruj scene <ArrowRight className="ml-2 w-5 h-5" /></Button></Link>

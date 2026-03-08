@@ -24,7 +24,7 @@ export default function Contact() {
           <div>
             <h2 className="text-2xl font-bold mb-6">Dane kontaktowe</h2>
             <div className="space-y-4">
-              {[{ icon: Mail, l: 'Email', v: 'hello@synapse-collective.pl' }, { icon: Phone, l: 'Telefon', v: '+48 123 456 789' }, { icon: MapPin, l: 'Lokalizacja', v: 'Wroclaw, Polska' }, { icon: Instagram, l: 'Instagram', v: '@synapse.collective' }].map(({ icon: Icon, l, v }) => (
+              {[{ icon: Mail, l: 'Email', v: 'hello@blacklight-collective.pl' }, { icon: Phone, l: 'Telefon', v: '+48 123 456 789' }, { icon: MapPin, l: 'Lokalizacja', v: 'Wroclaw, Polska' }, { icon: Instagram, l: 'Instagram', v: '@blacklight.collective' }].map(({ icon: Icon, l, v }) => (
                 <div key={l} className="flex items-start gap-4 p-4 rounded-xl bg-[var(--color-dark-card)] border border-[var(--color-dark-border)]">
                   <div className="w-10 h-10 rounded-lg bg-[var(--color-dark-bg)] flex items-center justify-center"><Icon className="w-5 h-5 text-[var(--color-neon-green)]" /></div>
                   <div><div className="text-sm text-[var(--color-text-secondary)]">{l}</div><div className="font-medium">{v}</div></div>

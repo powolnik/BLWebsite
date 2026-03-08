@@ -1,4 +1,4 @@
-# ⚡ SYNAPSE Collective
+# ⚡ BLACK LIGHT Collective
 
 > Platforma kolektywu tworzącego sceny na festiwalach muzyki elektronicznej.
 
@@ -21,7 +21,7 @@ DevOps:   Docker Compose (dev) | Render + Vercel (prod)
 
 ```bash
 # Sklonuj repo
-git clone <repo-url> && cd synapse-project
+git clone <repo-url> && cd blacklight-project
 
 # Uruchom wszystko
 docker-compose up -d
@@ -56,7 +56,7 @@ npm run dev
 ## 📁 Struktura projektu
 
 ```
-synapse-project/
+blacklight-project/
 ├── docker-compose.yml
 ├── backend/
 │   ├── config/              # Konfiguracja Django

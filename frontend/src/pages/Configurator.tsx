@@ -34,7 +34,7 @@ export default function Configurator() {
             <span className="gradient-text">Konfigurator scen</span>
           </h1>
           <p className="text-[var(--color-text-secondary)] mt-2 text-sm max-w-xl mx-auto">
-            Stwórz swoją własną scenę z modułów Synapse Collective.
+            Stwórz swoją własną scenę z modułów Black Light Collective.
             Wybierz elementy, zobacz wizualizację i złóż zamówienie.
           </p>
         </motion.div>

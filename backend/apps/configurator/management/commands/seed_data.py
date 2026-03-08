@@ -1,5 +1,5 @@
 """
-Seed data — realistyczne moduly Synapse Collective.
+Seed data — realistyczne moduly Black Light Collective.
 Uruchom: python manage.py seed_data
 """
 from django.core.management.base import BaseCommand
@@ -18,10 +18,10 @@ User = get_user_model()
 
 
 class Command(BaseCommand):
-    help = "Zaladuj przykladowe dane Synapse Collective"
+    help = "Zaladuj przykladowe dane Black Light Collective"
 
     def handle(self, *args, **options):
-        self.stdout.write("Laduje dane Synapse Collective...")
+        self.stdout.write("Laduje dane Black Light Collective...")
         self._users()
         self._team()
         self._festivals()
@@ -36,16 +36,16 @@ class Command(BaseCommand):
     def _users(self):
         self.stdout.write("  Uzytkownicy...")
         a, _ = User.objects.get_or_create(username="admin", defaults={
-            "email": "admin@synapse-collective.pl", "role": "admin",
-            "first_name": "Admin", "last_name": "Synapse",
+            "email": "admin@blacklight-collective.pl", "role": "admin",
+            "first_name": "Admin", "last_name": "Black Light",
             "is_staff": True, "is_superuser": True,
         })
         a.set_password("admin123!"); a.save()
         for u, e, fn, ln in [
-            ("kasia.led","kasia@synapse.pl","Katarzyna","Swietlna"),
-            ("marek.bass","marek@synapse.pl","Marek","Basski"),
-            ("ola.deko","ola@synapse.pl","Aleksandra","Dekowska"),
-            ("piotr.vfx","piotr@synapse.pl","Piotr","Efektowski"),
+            ("kasia.led","kasia@blacklight.pl","Katarzyna","Swietlna"),
+            ("marek.bass","marek@blacklight.pl","Marek","Basski"),
+            ("ola.deko","ola@blacklight.pl","Aleksandra","Dekowska"),
+            ("piotr.vfx","piotr@blacklight.pl","Piotr","Efektowski"),
         ]:
             o, _ = User.objects.get_or_create(username=u, defaults={"email":e,"first_name":fn,"last_name":ln,"role":"member"})
             o.set_password("member123!"); o.save()
@@ -61,7 +61,7 @@ class Command(BaseCommand):
     def _team(self):
         self.stdout.write("  Zespol...")
         for t in [
-            {"name":"Jakub Synapse","role":"Founder & Creative Director","bio":"Zalozyciel Synapse Collective. 12 lat doswiadczenia w scenografiach festiwalowych.","order":0},
+            {"name":"Jakub Black Light","role":"Founder & Creative Director","bio":"Zalozyciel Black Light Collective. 12 lat doswiadczenia w scenografiach festiwalowych.","order":0},
             {"name":"Katarzyna Swietlna","role":"Light Designer","bio":"Specjalistka od oswietlenia z 8-letnim doswiadczeniem.","order":1},
             {"name":"Marek Basski","role":"Sound & Stage Engineer","bio":"Inzynier dzwieku i konstruktor scen.","order":2},
             {"name":"Aleksandra Dekowska","role":"Art Director","bio":"Projektantka dekoracji scenicznych.","order":3},
@@ -105,7 +105,7 @@ class Command(BaseCommand):
         self.stdout.write("  Opinie...")
         projects = list(Project.objects.all())
         for i, t in enumerate([
-            {"author":"Michal Kowalczyk","role":"Dyr. artystyczny, Audioriver","content":"Synapse to najlepsza ekipa od scenografii w Polsce.","rating":5},
+            {"author":"Michal Kowalczyk","role":"Dyr. artystyczny, Audioriver","content":"Black Light to najlepsza ekipa od scenografii w Polsce.","rating":5},
             {"author":"Agata Wisniewska","role":"Organizatorka, Up To Date","content":"Deep Forest Stage byl absolutnym hitem festiwalu.","rating":5},
             {"author":"Tomek DJ Owl","role":"Rezydent, Instytut","content":"Granie w Void Chamber to doswiadczenie nie z tego swiata.","rating":5},
             {"author":"Hans Mueller","role":"Founder, PAM","content":"Polish team, German precision. Ocean Pulse was amazing.","rating":5},
@@ -144,7 +144,7 @@ class Command(BaseCommand):
             # UFO
             {"category":cats["ufo"],"name":"Ufo 1","slug":"ufo-1","description":"Maly obiekt UFO diam.2m z LED RGB. Idealny jako element dekoracyjny.","short_desc":"Maly UFO diam.2m, LED RGB","price":Decimal("1500"),"icon_name":"ufo","color":"#00ff88","width_m":2,"depth_m":2,"power_consumption":200,"weight_kg":15,"max_quantity":10,"specs":{"diameter":"2m","led":"RGB"}},
             {"category":cats["ufo"],"name":"Ufo 2","slug":"ufo-2","description":"Duzy obiekt UFO diam.4m z LED RGBW + laser. Glowny element wizualny sceny.","short_desc":"Duzy UFO diam.4m, RGBW+laser","price":Decimal("3500"),"icon_name":"ufo","color":"#00ffaa","width_m":4,"depth_m":4,"power_consumption":500,"weight_kg":45,"max_quantity":6,"specs":{"diameter":"4m","led":"RGBW","laser":"1W"}},
-            {"category":cats["ufo"],"name":"Ufo 3 Mega","slug":"ufo-3-mega","description":"Mega UFO diam.6m — flagowy obiekt Synapse. Full RGBW, laser 3W, rotacja.","short_desc":"Mega UFO diam.6m, full show","price":Decimal("6000"),"icon_name":"ufo","color":"#00ffcc","width_m":6,"depth_m":6,"power_consumption":1200,"weight_kg":80,"max_quantity":3,"specs":{"diameter":"6m","led":"RGBW","laser":"3W","rotation":True}},
+            {"category":cats["ufo"],"name":"Ufo 3 Mega","slug":"ufo-3-mega","description":"Mega UFO diam.6m — flagowy obiekt Black Light. Full RGBW, laser 3W, rotacja.","short_desc":"Mega UFO diam.6m, full show","price":Decimal("6000"),"icon_name":"ufo","color":"#00ffcc","width_m":6,"depth_m":6,"power_consumption":1200,"weight_kg":80,"max_quantity":3,"specs":{"diameter":"6m","led":"RGBW","laser":"3W","rotation":True}},
             # LAS
             {"category":cats["las"],"name":"Las 1","slug":"las-1","description":"Maly set lesny — 3 drzewa LED (wys. 3m) z pniami i konarami.","short_desc":"3 drzewa LED, 3m","price":Decimal("2000"),"icon_name":"tree","color":"#22c55e","width_m":4,"depth_m":3,"power_consumption":300,"weight_kg":60,"max_quantity":8,"specs":{"trees":3,"height":"3m"}},
             {"category":cats["las"],"name":"Las 2","slug":"las-2","description":"Duzy set lesny — 6 drzew LED (3-5m) z gestymi koronami.","short_desc":"6 drzew LED, 3-5m","price":Decimal("4500"),"icon_name":"tree","color":"#16a34a","width_m":6,"depth_m":5,"power_consumption":600,"weight_kg":140,"max_quantity":5,"specs":{"trees":6,"height":"3-5m"}},
@@ -175,18 +175,18 @@ class Command(BaseCommand):
     def _shop(self):
         self.stdout.write("  Sklep...")
         for c in [
-            {"name":"Odziez","slug":"odziez","description":"Koszulki, bluzy Synapse"},
+            {"name":"Odziez","slug":"odziez","description":"Koszulki, bluzy Black Light"},
             {"name":"Akcesoria","slug":"akcesoria","description":"Naklejki, plakaty"},
         ]:
             ProductCategory.objects.get_or_create(slug=c["slug"], defaults=c)
         cats = {c.slug: c for c in ProductCategory.objects.all()}
         for p in [
-            {"name":"T-shirt Synapse Logo","slug":"tshirt-logo","category":cats.get("odziez"),"description":"Czarny t-shirt z neonowym logo","price":Decimal("89"),"sku":"TSH-001","stock":50,"is_featured":True},
+            {"name":"T-shirt Black Light Logo","slug":"tshirt-logo","category":cats.get("odziez"),"description":"Czarny t-shirt z neonowym logo","price":Decimal("89"),"sku":"TSH-001","stock":50,"is_featured":True},
             {"name":"Hoodie Neon Grid","slug":"hoodie-neon","category":cats.get("odziez"),"description":"Bluza z kapturem neon grid","price":Decimal("189"),"sku":"HOD-001","stock":30,"is_featured":True},
             {"name":"Sticker Pack","slug":"sticker-pack","category":cats.get("akcesoria"),"description":"10 holograficznych naklejek","price":Decimal("25"),"sku":"STK-001","stock":200},
         ]:
             Product.objects.get_or_create(slug=p["slug"], defaults=p)
-        Coupon.objects.get_or_create(code="SYNAPSE10", defaults={"discount_percent":10,"is_active":True,"valid_from":date.today(),"valid_until":date.today()+timedelta(days=365)})
+        Coupon.objects.get_or_create(code="BLACK LIGHT10", defaults={"discount_percent":10,"is_active":True,"valid_from":date.today(),"valid_until":date.today()+timedelta(days=365)})
 
     # ---------- ORDERS ----------
     def _orders(self):

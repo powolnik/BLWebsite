@@ -1,5 +1,5 @@
 """
-SYNAPSE Collective — Pełne dane przykładowe
+BLACK LIGHT Collective — Pełne dane przykładowe
 Użycie: python manage.py seed_data
         python manage.py seed_data --flush  (wyczyść i załaduj od nowa)
 """
@@ -14,7 +14,7 @@ from apps.shop.models import ProductCategory, Product, ProductImage as ShopProdu
 
 
 class Command(BaseCommand):
-    help = 'Ładuje przykładowe dane do bazy SYNAPSE Collective'
+    help = 'Ładuje przykładowe dane do bazy BLACK LIGHT Collective'
 
     def add_arguments(self, parser):
         parser.add_argument(
@@ -27,7 +27,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.WARNING('⚠️  Czyszczenie istniejących danych...'))
             self._flush()
 
-        self.stdout.write(self.style.NOTICE('🚀 Ładowanie danych SYNAPSE Collective...'))
+        self.stdout.write(self.style.NOTICE('🚀 Ładowanie danych BLACK LIGHT Collective...'))
         self._create_users()
         self._create_team()
         self._create_festivals()
@@ -72,14 +72,14 @@ class Command(BaseCommand):
             defaults={
                 'email': 'admin@example.pl',
                 'first_name': 'Admin',
-                'last_name': 'SYNAPSE',
+                'last_name': 'BLACK LIGHT',
                 'role': 'admin',
                 'is_staff': True,
                 'is_superuser': True,
                 'phone': '+48 500 100 200',
-                'bio': 'Główny administrator platformy SYNAPSE Collective.',
-                'company': 'SYNAPSE Collective',
-                'website': 'https://synapse-collective.pl',
+                'bio': 'Główny administrator platformy BLACK LIGHT Collective.',
+                'company': 'BLACK LIGHT Collective',
+                'website': 'https://blacklight-collective.pl',
             }
         )
         self.admin.set_password('admin123!')
@@ -89,43 +89,43 @@ class Command(BaseCommand):
         members_data = [
             {
                 'username': 'kasia.led',
-                'email': 'kasia@synapse-collective.pl',
+                'email': 'kasia@blacklight-collective.pl',
                 'first_name': 'Katarzyna',
                 'last_name': 'Ledóchowska',
                 'role': 'member',
                 'phone': '+48 501 111 111',
                 'bio': 'Lead Light Designer z 8-letnim doświadczeniem w projektowaniu oświetlenia festiwalowego. Specjalizacja: systemy laserowe i mapping.',
-                'company': 'SYNAPSE Collective',
+                'company': 'BLACK LIGHT Collective',
             },
             {
                 'username': 'marek.bass',
-                'email': 'marek@synapse-collective.pl',
+                'email': 'marek@blacklight-collective.pl',
                 'first_name': 'Marek',
                 'last_name': 'Basiewicz',
                 'role': 'member',
                 'phone': '+48 502 222 222',
                 'bio': 'Sound Engineer & Stage Designer. 10 lat doświadczenia z systemami Funktion-One, d&b audiotechnik.',
-                'company': 'SYNAPSE Collective',
+                'company': 'BLACK LIGHT Collective',
             },
             {
                 'username': 'ola.deko',
-                'email': 'ola@synapse-collective.pl',
+                'email': 'ola@blacklight-collective.pl',
                 'first_name': 'Aleksandra',
                 'last_name': 'Dekowska',
                 'role': 'member',
                 'phone': '+48 503 333 333',
                 'bio': 'Art Director & Decoration Designer. Tworzę immersyjne przestrzenie festiwalowe łączące naturę z technologią.',
-                'company': 'SYNAPSE Collective',
+                'company': 'BLACK LIGHT Collective',
             },
             {
                 'username': 'piotr.vfx',
-                'email': 'piotr@synapse-collective.pl',
+                'email': 'piotr@blacklight-collective.pl',
                 'first_name': 'Piotr',
                 'last_name': 'Visualski',
                 'role': 'member',
                 'phone': '+48 504 444 444',
                 'bio': 'VFX Artist & Projection Mapper. Tworzę wizualizacje real-time w TouchDesigner i Resolume.',
-                'company': 'SYNAPSE Collective',
+                'company': 'BLACK LIGHT Collective',
             },
         ]
 
@@ -211,7 +211,7 @@ class Command(BaseCommand):
                 'name': 'Katarzyna Ledóchowska',
                 'role': 'Lead Light Designer',
                 'bio': 'Kasia to serce naszego działu oświetlenia. Z 8-letnim doświadczeniem w projektowaniu systemów laserowych i oświetlenia architektonicznego, tworzy niezapomniane pokazy świetlne na największych festiwalach w Europie. Absolwentka ASP w Krakowie, łączy artystyczną wrażliwość z techniczną precyzją.',
-                'email': 'kasia@synapse-collective.pl',
+                'email': 'kasia@blacklight-collective.pl',
                 'instagram': 'https://instagram.com/kasia.lights',
                 'behance': 'https://behance.net/kasialedochowska',
                 'order': 1,
@@ -220,7 +220,7 @@ class Command(BaseCommand):
                 'name': 'Marek Basiewicz',
                 'role': 'Sound Engineer & Stage Architect',
                 'bio': 'Marek projektuje sceny od fundamentów po wieże dźwiękowe. Certyfikowany inżynier Funktion-One i d&b audiotechnik. Zrealizował ponad 200 scen na festiwalach w Polsce, Niemczech i Holandii. Pasjonat psychoakustyki i systemów wielokanałowych.',
-                'email': 'marek@synapse-collective.pl',
+                'email': 'marek@blacklight-collective.pl',
                 'instagram': 'https://instagram.com/marek.bass',
                 'linkedin': 'https://linkedin.com/in/marekbasiewicz',
                 'order': 2,
@@ -229,7 +229,7 @@ class Command(BaseCommand):
                 'name': 'Aleksandra Dekowska',
                 'role': 'Art Director & Decoration Designer',
                 'bio': 'Ola zamienia festiwalowe pola w magiczne krainy. Specjalizuje się w dekoracjach UV, instalacjach kinetycznych i scenografiach inspirowanych naturą. Współpracowała z Burning Man, Fusion Festival i Audioriver.',
-                'email': 'ola@synapse-collective.pl',
+                'email': 'ola@blacklight-collective.pl',
                 'instagram': 'https://instagram.com/ola.deko.art',
                 'behance': 'https://behance.net/oladekowska',
                 'order': 3,
@@ -238,7 +238,7 @@ class Command(BaseCommand):
                 'name': 'Piotr Visualski',
                 'role': 'VFX Artist & Projection Mapper',
                 'bio': 'Piotr tworzy wizualizacje real-time, które żyją w rytm muzyki. Ekspert TouchDesigner, Resolume Arena i Notch. Jego projection mappingi pokryły elewacje budynków w 12 krajach. Twórca autorskiego systemu generatywnych wizualizacji SYNTH_VIS.',
-                'email': 'piotr@synapse-collective.pl',
+                'email': 'piotr@blacklight-collective.pl',
                 'instagram': 'https://instagram.com/piotr.vfx',
                 'linkedin': 'https://linkedin.com/in/piotrvisualski',
                 'order': 4,
@@ -247,8 +247,8 @@ class Command(BaseCommand):
                 'name': 'Zuza Woltażowa',
                 'role': 'Technical Producer & Project Manager',
                 'bio': 'Zuza koordynuje całe produkcje — od koncepcji po demontaż. Z wykształcenia inżynier elektryk, z powołania — strażniczka terminów i budżetów. Zarządza logistyką sprzętu wartego miliony złotych.',
-                'email': 'zuza@synapse-collective.pl',
-                'instagram': 'https://instagram.com/zuza.synapse',
+                'email': 'zuza@blacklight-collective.pl',
+                'instagram': 'https://instagram.com/zuza.blacklight',
                 'linkedin': 'https://linkedin.com/in/zuzawoltazowa',
                 'order': 5,
             },
@@ -256,7 +256,7 @@ class Command(BaseCommand):
                 'name': 'Bartek Pyroński',
                 'role': 'Pyrotechnics & Special Effects',
                 'bio': 'Bartek to nasz specjalista od efektów specjalnych — ogień, CO2, confetti, zimne ognie. Licencjonowany pirotechnik z uprawnieniami do widowisk scenicznych. Dba o to, żeby każdy drop na festiwalu miał swoje WOW.',
-                'email': 'bartek@synapse-collective.pl',
+                'email': 'bartek@blacklight-collective.pl',
                 'instagram': 'https://instagram.com/bartek.pyro',
                 'order': 6,
             },
@@ -444,14 +444,14 @@ class Command(BaseCommand):
             {
                 'author': 'Jan Kowalski',
                 'role': 'CEO, FestManager Sp. z o.o.',
-                'content': 'SYNAPSE Collective to najlepszy zespół scenograficzny, z jakim pracowaliśmy. Neon Cathedral na Audioriver przeszła nasze najśmielsze oczekiwania. Profesjonalizm, terminowość i kreatywność na najwyższym poziomie. Publiczność do dziś o tym mówi!',
+                'content': 'BLACK LIGHT Collective to najlepszy zespół scenograficzny, z jakim pracowaliśmy. Neon Cathedral na Audioriver przeszła nasze najśmielsze oczekiwania. Profesjonalizm, terminowość i kreatywność na najwyższym poziomie. Publiczność do dziś o tym mówi!',
                 'project': self.projects[0],
                 'rating': 5,
             },
             {
                 'author': 'Anna Nowak',
                 'role': 'CEO, Bass Culture Events',
-                'content': 'Deep Forest na Up To Date to był strzał w dziesiątkę. Połączenie natury z technologią, dźwięk 360° — ludzie mówili, że to najlepsza scena techno w Polsce w 2025 roku. SYNAPSE rozumie muzykę elektroniczną jak nikt inny.',
+                'content': 'Deep Forest na Up To Date to był strzał w dziesiątkę. Połączenie natury z technologią, dźwięk 360° — ludzie mówili, że to najlepsza scena techno w Polsce w 2025 roku. BLACK LIGHT rozumie muzykę elektroniczną jak nikt inny.',
                 'project': self.projects[1],
                 'rating': 5,
             },
@@ -472,20 +472,20 @@ class Command(BaseCommand):
             {
                 'author': 'Karolina Morska',
                 'role': 'Production Manager, Sunrise Events',
-                'content': 'Scena Ocean Pulse to było coś niesamowitego! 25 tysięcy ludzi pod wrażeniem fali LED i pirotechniki. SYNAPSE dostarczyli wszystko na czas mimo trudnych warunków pogodowych. Profesjonaliści w każdym calu.',
+                'content': 'Scena Ocean Pulse to było coś niesamowitego! 25 tysięcy ludzi pod wrażeniem fali LED i pirotechniki. BLACK LIGHT dostarczyli wszystko na czas mimo trudnych warunków pogodowych. Profesjonaliści w każdym calu.',
                 'project': self.projects[4],
                 'rating': 5,
             },
             {
                 'author': 'Tomasz Nocny',
                 'role': 'DJ & Promoter, Night Owl Events',
-                'content': 'Pierwszy raz skorzystałem z usług SYNAPSE przy mniejszym evencie i byłem pod wrażeniem. Nawet przy ograniczonym budżecie potrafili stworzyć magiczną atmosferę. Na pewno wrócę z większym projektem!',
+                'content': 'Pierwszy raz skorzystałem z usług BLACK LIGHT przy mniejszym evencie i byłem pod wrażeniem. Nawet przy ograniczonym budżecie potrafili stworzyć magiczną atmosferę. Na pewno wrócę z większym projektem!',
                 'rating': 4,
             },
             {
                 'author': 'Dr Alicja Sztuka',
                 'role': 'Kuratorka, Unsound Festival',
-                'content': 'Echo Dimension to jedno z najambitniejszych dzieł, które prezentowaliśmy na Unsound. Sferyczny system dźwiękowy i generatywne wizualizacje stworzyły naprawdę transcendentne doświadczenie. Artyści z ASP byli zachwyceni współpracą z zespołem SYNAPSE.',
+                'content': 'Echo Dimension to jedno z najambitniejszych dzieł, które prezentowaliśmy na Unsound. Sferyczny system dźwiękowy i generatywne wizualizacje stworzyły naprawdę transcendentne doświadczenie. Artyści z ASP byli zachwyceni współpracą z zespołem BLACK LIGHT.',
                 'project': self.projects[6],
                 'rating': 5,
             },
@@ -626,7 +626,7 @@ class Command(BaseCommand):
 
         # Product Categories
         shop_cats_data = [
-            {'name': 'Odzież', 'slug': 'odziez', 'description': 'Koszulki, bluzy, czapki z logo SYNAPSE', 'order': 1},
+            {'name': 'Odzież', 'slug': 'odziez', 'description': 'Koszulki, bluzy, czapki z logo BLACK LIGHT', 'order': 1},
             {'name': 'Akcesoria', 'slug': 'akcesoria', 'description': 'Torby, plecaki, breloki, naklejki', 'order': 2},
             {'name': 'Elementy sceniczne', 'slug': 'elementy-sceniczne', 'description': 'Mniejsze elementy dekoracyjne na własne eventy', 'order': 3},
             {'name': 'Druki artystyczne', 'slug': 'druki-artystyczne', 'description': 'Plakaty, printy zdjęć z festiwali, grafiki limitowane', 'order': 4},
@@ -640,15 +640,15 @@ class Command(BaseCommand):
         # Products
         products_data = [
             # Odzież
-            {'name': 'T-shirt SYNAPSE "Neon Cathedral" Ed.', 'slug': 'tshirt-neon-cathedral', 'category': shop_cats[0], 'description': 'Limitowana koszulka upamiętniająca projekt Neon Cathedral na Audioriver 2025. 100% bawełna organiczna, nadruk UV-reaktywny — świeci pod ultafioletem na festiwalu! Unisex, regular fit.', 'short_description': 'Limitowana koszulka z nadrukiem UV-reaktywnym', 'price': Decimal('129.00'), 'compare_price': Decimal('159.00'), 'sku': 'TSH-NC-001', 'stock': 150, 'is_featured': True, 'weight_kg': Decimal('0.25'), 'tags': 'koszulka,uv,neon,audioriver,limitowana'},
-            {'name': 'Bluza Hoodie SYNAPSE Classic Black', 'slug': 'bluza-synapse-classic', 'category': shop_cats[0], 'description': 'Klasyczna czarna bluza z kapturem i haftowanym logo SYNAPSE. 80% bawełna, 20% poliester, 320g/m². Kangurka, sznurek w kapturze. Idealny festiwalowy must-have na chłodne noce.', 'short_description': 'Czarna bluza z haftowanym logo', 'price': Decimal('249.00'), 'sku': 'BLZ-CL-001', 'stock': 80, 'is_featured': True, 'weight_kg': Decimal('0.55'), 'tags': 'bluza,hoodie,classic,logo'},
-            {'name': 'Czapka Snapback SYNAPSE Glow', 'slug': 'czapka-synapse-glow', 'category': shop_cats[0], 'description': 'Czapka snapback z odblaskowym logo SYNAPSE. Świeci w błyskach stroboskopu! Regulowany rozmiar, płaski daszek.', 'short_description': 'Snapback z odblaskowym logo', 'price': Decimal('89.00'), 'sku': 'CZP-GL-001', 'stock': 120, 'weight_kg': Decimal('0.12'), 'tags': 'czapka,snapback,glow,odblask'},
-            {'name': 'Tank Top SYNAPSE Techno Black', 'slug': 'tanktop-techno-black', 'category': shop_cats[0], 'description': 'Lekki tank top na festiwalowe upały. Minimalistyczny design z małym logo na piersi. 100% bawełna.', 'short_description': 'Lekki tank top z logo', 'price': Decimal('79.00'), 'sku': 'TNK-TB-001', 'stock': 200, 'weight_kg': Decimal('0.15'), 'tags': 'tanktop,techno,lato,festiwal'},
+            {'name': 'T-shirt BLACK LIGHT "Neon Cathedral" Ed.', 'slug': 'tshirt-neon-cathedral', 'category': shop_cats[0], 'description': 'Limitowana koszulka upamiętniająca projekt Neon Cathedral na Audioriver 2025. 100% bawełna organiczna, nadruk UV-reaktywny — świeci pod ultafioletem na festiwalu! Unisex, regular fit.', 'short_description': 'Limitowana koszulka z nadrukiem UV-reaktywnym', 'price': Decimal('129.00'), 'compare_price': Decimal('159.00'), 'sku': 'TSH-NC-001', 'stock': 150, 'is_featured': True, 'weight_kg': Decimal('0.25'), 'tags': 'koszulka,uv,neon,audioriver,limitowana'},
+            {'name': 'Bluza Hoodie BLACK LIGHT Classic Black', 'slug': 'bluza-blacklight-classic', 'category': shop_cats[0], 'description': 'Klasyczna czarna bluza z kapturem i haftowanym logo BLACK LIGHT. 80% bawełna, 20% poliester, 320g/m². Kangurka, sznurek w kapturze. Idealny festiwalowy must-have na chłodne noce.', 'short_description': 'Czarna bluza z haftowanym logo', 'price': Decimal('249.00'), 'sku': 'BLZ-CL-001', 'stock': 80, 'is_featured': True, 'weight_kg': Decimal('0.55'), 'tags': 'bluza,hoodie,classic,logo'},
+            {'name': 'Czapka Snapback BLACK LIGHT Glow', 'slug': 'czapka-blacklight-glow', 'category': shop_cats[0], 'description': 'Czapka snapback z odblaskowym logo BLACK LIGHT. Świeci w błyskach stroboskopu! Regulowany rozmiar, płaski daszek.', 'short_description': 'Snapback z odblaskowym logo', 'price': Decimal('89.00'), 'sku': 'CZP-GL-001', 'stock': 120, 'weight_kg': Decimal('0.12'), 'tags': 'czapka,snapback,glow,odblask'},
+            {'name': 'Tank Top BLACK LIGHT Techno Black', 'slug': 'tanktop-techno-black', 'category': shop_cats[0], 'description': 'Lekki tank top na festiwalowe upały. Minimalistyczny design z małym logo na piersi. 100% bawełna.', 'short_description': 'Lekki tank top z logo', 'price': Decimal('79.00'), 'sku': 'TNK-TB-001', 'stock': 200, 'weight_kg': Decimal('0.15'), 'tags': 'tanktop,techno,lato,festiwal'},
 
             # Akcesoria
-            {'name': 'Plecak SYNAPSE Utility 25L', 'slug': 'plecak-synapse-utility', 'category': shop_cats[1], 'description': 'Wodoodporny plecak festiwalowy z kieszenią na laptop, ukrytą kieszenią antykradzieżową i odblaskowym logo. Objętość 25L, pasek piersiowy, port USB do powerbanku.', 'short_description': 'Wodoodporny plecak 25L z portem USB', 'price': Decimal('199.00'), 'sku': 'PLK-UT-001', 'stock': 45, 'is_featured': True, 'weight_kg': Decimal('0.8'), 'tags': 'plecak,festiwal,wodoodporny,usb'},
-            {'name': 'Zestaw naklejek SYNAPSE (10 szt.)', 'slug': 'naklejki-synapse-set', 'category': shop_cats[1], 'description': '10 naklejek winylowych z grafikami SYNAPSE. Wodoodporne, UV-odporne. Idealnie na laptop, skrzynię na sprzęt czy samochód.', 'short_description': '10 naklejek winylowych wodoodpornych', 'price': Decimal('29.00'), 'sku': 'NAK-ST-001', 'stock': 500, 'weight_kg': Decimal('0.05'), 'tags': 'naklejki,vinyl,zestaw'},
-            {'name': 'Brelok LED SYNAPSE (USB-C)', 'slug': 'brelok-led-synapse', 'category': shop_cats[1], 'description': 'Mini brelok z podświetlanym logo SYNAPSE. Ładowanie USB-C, 3 tryby świecenia (stały, pulsujący, stroboskop). Bateria na 48h.', 'short_description': 'Brelok z podświetlanym logo, USB-C', 'price': Decimal('49.00'), 'sku': 'BRL-LED-001', 'stock': 300, 'weight_kg': Decimal('0.03'), 'tags': 'brelok,led,usb-c,gadżet'},
+            {'name': 'Plecak BLACK LIGHT Utility 25L', 'slug': 'plecak-blacklight-utility', 'category': shop_cats[1], 'description': 'Wodoodporny plecak festiwalowy z kieszenią na laptop, ukrytą kieszenią antykradzieżową i odblaskowym logo. Objętość 25L, pasek piersiowy, port USB do powerbanku.', 'short_description': 'Wodoodporny plecak 25L z portem USB', 'price': Decimal('199.00'), 'sku': 'PLK-UT-001', 'stock': 45, 'is_featured': True, 'weight_kg': Decimal('0.8'), 'tags': 'plecak,festiwal,wodoodporny,usb'},
+            {'name': 'Zestaw naklejek BLACK LIGHT (10 szt.)', 'slug': 'naklejki-blacklight-set', 'category': shop_cats[1], 'description': '10 naklejek winylowych z grafikami BLACK LIGHT. Wodoodporne, UV-odporne. Idealnie na laptop, skrzynię na sprzęt czy samochód.', 'short_description': '10 naklejek winylowych wodoodpornych', 'price': Decimal('29.00'), 'sku': 'NAK-ST-001', 'stock': 500, 'weight_kg': Decimal('0.05'), 'tags': 'naklejki,vinyl,zestaw'},
+            {'name': 'Brelok LED BLACK LIGHT (USB-C)', 'slug': 'brelok-led-blacklight', 'category': shop_cats[1], 'description': 'Mini brelok z podświetlanym logo BLACK LIGHT. Ładowanie USB-C, 3 tryby świecenia (stały, pulsujący, stroboskop). Bateria na 48h.', 'short_description': 'Brelok z podświetlanym logo, USB-C', 'price': Decimal('49.00'), 'sku': 'BRL-LED-001', 'stock': 300, 'weight_kg': Decimal('0.03'), 'tags': 'brelok,led,usb-c,gadżet'},
 
             # Elementy sceniczne
             {'name': 'Mini LED Totem 1.5m (DIY Kit)', 'slug': 'mini-led-totem-diy', 'category': shop_cats[2], 'description': 'Zestaw do samodzielnego złożenia totemu LED o wysokości 1.5m. Zawiera: profil aluminiowy, taśmę LED WS2812B 300px, kontroler ESP32 z WiFi, zasilacz 5V/10A, instrukcję montażu i kod Arduino do sterowania. Idealny na domówki i małe eventy.', 'short_description': 'Zestaw DIY — totem LED 1.5m z ESP32', 'price': Decimal('449.00'), 'compare_price': Decimal('549.00'), 'sku': 'TOT-DIY-001', 'stock': 25, 'is_featured': True, 'weight_kg': Decimal('5.0'), 'tags': 'totem,led,diy,esp32,arduino'},
@@ -657,7 +657,7 @@ class Command(BaseCommand):
 
             # Druki artystyczne
             {'name': 'Plakat "Neon Cathedral" 70×100cm', 'slug': 'plakat-neon-cathedral', 'category': shop_cats[3], 'description': 'Oficjalny plakat projektu Neon Cathedral (Audioriver 2025). Druk na papierze fotograficznym 250g/m², nasycone kolory. Limitowana edycja numerowana, 200 sztuk.', 'short_description': 'Limitowany plakat 70×100cm, druk foto', 'price': Decimal('149.00'), 'sku': 'PLK-NC-001', 'stock': 200, 'is_featured': True, 'weight_kg': Decimal('0.3'), 'tags': 'plakat,print,neon,audioriver,limitowany'},
-            {'name': 'Zestaw 3 printów "Best of 2025" A3', 'slug': 'printy-best-of-2025', 'category': shop_cats[3], 'description': '3 druki artystyczne A3 przedstawiające najlepsze realizacje SYNAPSE z sezonu 2025. Neon Cathedral, Deep Forest, Ocean Pulse. Papier matowy 200g/m².', 'short_description': '3 printy A3 — top projekty 2025', 'price': Decimal('199.00'), 'compare_price': Decimal('249.00'), 'sku': 'PRT-BO-2025', 'stock': 100, 'weight_kg': Decimal('0.5'), 'tags': 'print,zestaw,2025,a3,artystyczny'},
+            {'name': 'Zestaw 3 printów "Best of 2025" A3', 'slug': 'printy-best-of-2025', 'category': shop_cats[3], 'description': '3 druki artystyczne A3 przedstawiające najlepsze realizacje BLACK LIGHT z sezonu 2025. Neon Cathedral, Deep Forest, Ocean Pulse. Papier matowy 200g/m².', 'short_description': '3 printy A3 — top projekty 2025', 'price': Decimal('199.00'), 'compare_price': Decimal('249.00'), 'sku': 'PRT-BO-2025', 'stock': 100, 'weight_kg': Decimal('0.5'), 'tags': 'print,zestaw,2025,a3,artystyczny'},
         ]
 
         for data in products_data:
@@ -666,7 +666,7 @@ class Command(BaseCommand):
         # Coupons
         now = timezone.now()
         coupons_data = [
-            {'code': 'SYNAPSE10', 'discount_type': 'percentage', 'discount_value': Decimal('10.00'), 'min_order_amount': Decimal('100.00'), 'max_uses': 500, 'valid_from': now, 'valid_until': now + timedelta(days=90)},
+            {'code': 'BLACK LIGHT10', 'discount_type': 'percentage', 'discount_value': Decimal('10.00'), 'min_order_amount': Decimal('100.00'), 'max_uses': 500, 'valid_from': now, 'valid_until': now + timedelta(days=90)},
             {'code': 'FIRSTORDER', 'discount_type': 'percentage', 'discount_value': Decimal('15.00'), 'min_order_amount': Decimal('50.00'), 'max_uses': 1000, 'valid_from': now, 'valid_until': now + timedelta(days=365)},
             {'code': 'FESTIWAL50', 'discount_type': 'fixed', 'discount_value': Decimal('50.00'), 'min_order_amount': Decimal('300.00'), 'max_uses': 100, 'valid_from': now, 'valid_until': now + timedelta(days=60)},
             {'code': 'VIP25', 'discount_type': 'percentage', 'discount_value': Decimal('25.00'), 'min_order_amount': Decimal('200.00'), 'max_uses': 50, 'valid_from': now, 'valid_until': now + timedelta(days=180)},
