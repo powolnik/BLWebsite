@@ -10,23 +10,34 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(SceneTemplate)
 class SceneTemplateAdmin(admin.ModelAdmin):
-    list_display = ['name', 'base_price', 'is_active']
+    list_display = ['name', 'base_price', 'width', 'depth', 'height', 'is_active']
     prepopulated_fields = {'slug': ('name',)}
+    fieldsets = (
+        (None, {'fields': ('name', 'slug', 'description', 'base_price', 'is_active')}),
+        ('Obrazek', {'fields': ('preview_image', 'thumbnail_url')}),
+        ('Wymiary', {'fields': ('width', 'depth', 'height')}),
+    )
 
 
 @admin.register(ComponentCategory)
 class ComponentCategoryAdmin(admin.ModelAdmin):
-    list_display = ['name', 'order']
-    list_editable = ['order']
+    list_display = ['name', 'icon', 'color', 'order']
+    list_editable = ['order', 'color']
     prepopulated_fields = {'slug': ('name',)}
 
 
 @admin.register(Component)
 class ComponentAdmin(admin.ModelAdmin):
-    list_display = ['name', 'category', 'price', 'is_available', 'power_consumption']
+    list_display = ['name', 'category', 'price', 'icon_name', 'is_available', 'power_consumption']
     list_filter = ['category', 'is_available']
     search_fields = ['name', 'description']
     prepopulated_fields = {'slug': ('name',)}
+    fieldsets = (
+        (None, {'fields': ('name', 'slug', 'category', 'description', 'short_desc', 'price')}),
+        ('Wizualizacja', {'fields': ('image', 'thumbnail_url', 'icon_name', 'color')}),
+        ('Wymiary i specyfikacja', {'fields': ('width_m', 'depth_m', 'weight_kg', 'power_consumption', 'specs')}),
+        ('Dostępność', {'fields': ('is_available', 'max_quantity')}),
+    )
 
 
 @admin.register(Order)

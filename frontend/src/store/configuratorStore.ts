@@ -1,44 +1,138 @@
 import { create } from 'zustand';
-import type { SceneTemplate, ComponentCategory, SceneOrder } from '../types';
+import type { SceneTemplate, ComponentCategory, SceneComponent, SceneItem } from '../types';
 import { configuratorService } from '../services/configurator';
 import toast from 'react-hot-toast';
 
 interface ConfiguratorState {
-  templates: SceneTemplate[]; categories: ComponentCategory[]; currentOrder: SceneOrder | null;
-  step: number; isLoading: boolean;
-  fetchTemplates: () => Promise<void>; fetchCategories: () => Promise<void>;
-  createOrder: (d: { template?: number; event_name: string; event_date: string; event_location: string }) => Promise<void>;
-  addItem: (cid: number, qty?: number) => Promise<void>;
-  removeItem: (iid: number) => Promise<void>;
-  submitOrder: () => Promise<void>;
-  setStep: (s: number) => void; reset: () => void;
+  // Data from API
+  templates: SceneTemplate[];
+  categories: ComponentCategory[];
+  isLoading: boolean;
+
+  // Local scene state
+  selectedTemplate: SceneTemplate | null;
+  sceneItems: SceneItem[];
+  activeCategory: string | null;
+
+  // UI state
+  step: 'build' | 'order';
+  showOrderForm: boolean;
+
+  // Actions
+  fetchData: () => Promise<void>;
+  selectTemplate: (t: SceneTemplate | null) => void;
+  setActiveCategory: (slug: string | null) => void;
+  addModule: (component: SceneComponent) => void;
+  removeModule: (itemId: string) => void;
+  updateQuantity: (itemId: string, qty: number) => void;
+  clearScene: () => void;
+  setStep: (step: 'build' | 'order') => void;
+  setShowOrderForm: (show: boolean) => void;
+
+  // Computed
+  totalPrice: () => number;
+  totalPower: () => number;
+  totalWeight: () => number;
+  itemCount: () => number;
 }
 
+let idCounter = 0;
+
 export const useConfiguratorStore = create<ConfiguratorState>((set, get) => ({
-  templates: [], categories: [], currentOrder: null, step: 0, isLoading: false,
-  fetchTemplates: async () => set({ templates: await configuratorService.getTemplates() }),
-  fetchCategories: async () => set({ categories: await configuratorService.getCategories() }),
-  createOrder: async (data) => {
+  templates: [],
+  categories: [],
+  isLoading: false,
+  selectedTemplate: null,
+  sceneItems: [],
+  activeCategory: null,
+  step: 'build',
+  showOrderForm: false,
+
+  fetchData: async () => {
     set({ isLoading: true });
-    try { const order = await configuratorService.createOrder(data); set({ currentOrder: order, step: 1, isLoading: false }); toast.success('Konfiguracja rozpoczeta!'); }
-    catch { set({ isLoading: false }); toast.error('Blad tworzenia'); }
+    try {
+      const [templates, categories] = await Promise.all([
+        configuratorService.getTemplates(),
+        configuratorService.getCategories(),
+      ]);
+      set({ templates, categories, isLoading: false });
+      if (categories.length > 0) {
+        set({ activeCategory: categories[0].slug });
+      }
+    } catch {
+      set({ isLoading: false });
+      toast.error('Nie udało się załadować danych konfiguratora');
+    }
   },
-  addItem: async (cid, qty = 1) => {
-    const { currentOrder } = get(); if (!currentOrder) return;
-    try { await configuratorService.addItem(currentOrder.id, cid, qty); set({ currentOrder: await configuratorService.getOrder(currentOrder.id) }); toast.success('Dodano!'); }
-    catch { toast.error('Blad dodawania'); }
+
+  selectTemplate: (t) => set({ selectedTemplate: t }),
+  setActiveCategory: (slug) => set({ activeCategory: slug }),
+
+  addModule: (component) => {
+    const { sceneItems } = get();
+    const existing = sceneItems.find(i => i.component.id === component.id);
+    if (existing) {
+      if (existing.quantity >= component.max_quantity) {
+        toast.error(`Maks. ${component.max_quantity} szt. ${component.name}`);
+        return;
+      }
+      set({
+        sceneItems: sceneItems.map(i =>
+          i.id === existing.id ? { ...i, quantity: i.quantity + 1 } : i
+        ),
+      });
+    } else {
+      set({
+        sceneItems: [...sceneItems, {
+          id: `item-${++idCounter}`,
+          component,
+          quantity: 1,
+        }],
+      });
+    }
+    toast.success(`${component.name} dodany!`, { duration: 1500 });
   },
-  removeItem: async (iid) => {
-    const { currentOrder } = get(); if (!currentOrder) return;
-    try { await configuratorService.removeItem(currentOrder.id, iid); set({ currentOrder: await configuratorService.getOrder(currentOrder.id) }); }
-    catch { toast.error('Blad usuwania'); }
+
+  removeModule: (itemId) => {
+    set({ sceneItems: get().sceneItems.filter(i => i.id !== itemId) });
   },
-  submitOrder: async () => {
-    const { currentOrder } = get(); if (!currentOrder) return;
-    set({ isLoading: true });
-    try { await configuratorService.submitOrder(currentOrder.id); set({ currentOrder: await configuratorService.getOrder(currentOrder.id), isLoading: false }); toast.success('Zamowienie zlozone!'); }
-    catch { set({ isLoading: false }); toast.error('Blad skladania'); }
+
+  updateQuantity: (itemId, qty) => {
+    if (qty <= 0) {
+      get().removeModule(itemId);
+      return;
+    }
+    set({
+      sceneItems: get().sceneItems.map(i =>
+        i.id === itemId ? { ...i, quantity: Math.min(qty, i.component.max_quantity) } : i
+      ),
+    });
   },
+
+  clearScene: () => {
+    set({ sceneItems: [], selectedTemplate: null });
+    toast('Scena wyczyszczona', { icon: '🗑️' });
+  },
+
   setStep: (step) => set({ step }),
-  reset: () => set({ currentOrder: null, step: 0 }),
+  setShowOrderForm: (show) => set({ showOrderForm: show }),
+
+  totalPrice: () => {
+    const { sceneItems, selectedTemplate } = get();
+    const items = sceneItems.reduce((sum, i) => sum + parseFloat(i.component.price) * i.quantity, 0);
+    const tmpl = selectedTemplate ? parseFloat(selectedTemplate.base_price) : 0;
+    return items + tmpl;
+  },
+
+  totalPower: () => {
+    return get().sceneItems.reduce((sum, i) => sum + i.component.power_consumption * i.quantity, 0);
+  },
+
+  totalWeight: () => {
+    return get().sceneItems.reduce((sum, i) => sum + parseFloat(i.component.weight_kg) * i.quantity, 0);
+  },
+
+  itemCount: () => {
+    return get().sceneItems.reduce((sum, i) => sum + i.quantity, 0);
+  },
 }));

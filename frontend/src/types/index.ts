@@ -27,21 +27,34 @@ export interface Testimonial {
   project_title: string; rating: number; created_at: string;
 }
 
+// === CONFIGURATOR ===
 export interface SceneTemplate {
   id: number; name: string; slug: string; description: string; base_price: string;
-  preview_image: string; model_3d_url: string; width: string; depth: string; height: string;
+  image_url: string; width: string; depth: string; height: string;
 }
 export interface ComponentCategory {
-  id: number; name: string; slug: string; icon: string; description: string;
-  order: number; components: SceneComponent[];
+  id: number; name: string; slug: string; icon: string; color: string;
+  description: string; order: number; components: SceneComponent[];
 }
 export interface SceneComponent {
-  id: number; name: string; slug: string; description: string; price: string; image: string;
-  category: number; category_name: string; specs: Record<string, unknown>;
-  power_consumption: number; weight_kg: string; is_available: boolean; max_quantity: number;
+  id: number; name: string; slug: string; description: string; short_desc: string;
+  price: string; image_url: string; icon_name: string; color: string;
+  category: number; category_name: string; category_color: string;
+  width_m: string; depth_m: string;
+  specs: Record<string, unknown>;
+  power_consumption: number; weight_kg: string;
+  is_available: boolean; max_quantity: number;
 }
+
+// Local scene item (not yet sent to API)
+export interface SceneItem {
+  id: string; // local UUID
+  component: SceneComponent;
+  quantity: number;
+}
+
 export interface OrderItem {
-  id: number; component: number; component_name: string; component_image: string;
+  id: number; component: number; component_name: string; component_icon: string; component_color: string;
   quantity: number; unit_price: string; subtotal: string;
   position_data: Record<string, unknown>; notes: string;
 }
@@ -54,6 +67,7 @@ export interface SceneOrder {
   item_count?: number; created_at: string; updated_at: string;
 }
 
+// === SHOP ===
 export interface ProductCategory {
   id: number; name: string; slug: string; description: string; image: string | null;
   parent: number | null; product_count: number; children: ProductCategory[];

@@ -1,23 +1,20 @@
-"""
-Catch-all view dla React Single Page Application.
-Każdy URL który nie pasuje do /api/ ani /admin/ serwuje index.html z React builda.
-React Router obsługuje routing po stronie klienta.
-"""
 import os
-from django.http import HttpResponse
+from pathlib import Path
 from django.conf import settings
+from django.http import FileResponse, Http404, HttpResponse
 
 
 def spa_index(request):
-    """Serwuj React index.html dla wszystkich non-API routes."""
-    index_path = os.path.join(settings.BASE_DIR, 'frontend_dist', 'index.html')
-    try:
-        with open(index_path, 'r') as f:
-            return HttpResponse(f.read(), content_type='text/html')
-    except FileNotFoundError:
-        return HttpResponse(
-            '<h1>Frontend nie jest zbudowany</h1>'
-            '<p>Uruchom build.sh aby zbudować frontend</p>',
-            content_type='text/html',
-            status=503,
-        )
+    """Serwuj index.html z React build dla SPA routing."""
+    index_path = Path(settings.BASE_DIR) / 'frontend_dist' / 'index.html'
+    if index_path.exists():
+        return HttpResponse(index_path.read_text(), content_type='text/html')
+    raise Http404('Frontend not built yet.')
+
+
+def media_serve(request, path):
+    """Serwuj pliki media w produkcji (dla admin uploads)."""
+    file_path = Path(settings.MEDIA_ROOT) / path
+    if file_path.exists() and file_path.is_file():
+        return FileResponse(open(file_path, 'rb'))
+    raise Http404('File not found.')

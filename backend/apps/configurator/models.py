@@ -8,11 +8,12 @@ class SceneTemplate(models.Model):
     slug = models.SlugField('Slug', unique=True)
     description = models.TextField('Opis')
     base_price = models.DecimalField('Cena bazowa', max_digits=10, decimal_places=2)
-    preview_image = models.ImageField('Podglad', upload_to='templates/')
-    model_3d_url = models.URLField('URL modelu 3D', blank=True)
-    width = models.DecimalField('Szerokosc (m)', max_digits=6, decimal_places=2, default=10)
-    depth = models.DecimalField('Glebokosc (m)', max_digits=6, decimal_places=2, default=8)
-    height = models.DecimalField('Wysokosc (m)', max_digits=6, decimal_places=2, default=6)
+    preview_image = models.ImageField('Podglad', upload_to='templates/', blank=True)
+    thumbnail_url = models.URLField('URL miniaturki (zewn.)', blank=True,
+        help_text='Zewnętrzny URL obrazka — używany gdy brak uploadu')
+    width = models.DecimalField('Szerokosc (m)', max_digits=6, decimal_places=2, default=20)
+    depth = models.DecimalField('Glebokosc (m)', max_digits=6, decimal_places=2, default=15)
+    height = models.DecimalField('Wysokosc (m)', max_digits=6, decimal_places=2, default=8)
     is_active = models.BooleanField('Aktywny', default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -24,12 +25,19 @@ class SceneTemplate(models.Model):
     def __str__(self):
         return self.name
 
+    def get_image_url(self):
+        if self.preview_image:
+            return self.preview_image.url
+        return self.thumbnail_url or ''
+
 
 class ComponentCategory(models.Model):
-    """Kategoria komponentow: Oswietlenie, Dekoracje, Dzwiek, Efekty specjalne."""
+    """Kategoria komponentow: Oświetlenie, Dekoracje, Dźwięk, Efekty specjalne."""
     name = models.CharField('Nazwa', max_length=100)
     slug = models.SlugField('Slug', unique=True)
-    icon = models.CharField('Ikona (CSS class)', max_length=50, blank=True)
+    icon = models.CharField('Ikona (emoji/klasa)', max_length=50, blank=True)
+    color = models.CharField('Kolor (hex)', max_length=7, default='#00ff88',
+        help_text='Kolor kategorii w konfiguratorze')
     description = models.TextField('Opis', blank=True)
     order = models.PositiveIntegerField('Kolejnosc', default=0)
 
@@ -43,36 +51,49 @@ class ComponentCategory(models.Model):
 
 
 class Component(models.Model):
-    """Pojedynczy element do wyboru w kreatorze."""
+    """Pojedynczy moduł do wyboru w konfiguratorze sceny."""
     category = models.ForeignKey(
         ComponentCategory, on_delete=models.CASCADE, related_name='components'
     )
     name = models.CharField('Nazwa', max_length=200)
     slug = models.SlugField('Slug', unique=True)
     description = models.TextField('Opis')
+    short_desc = models.CharField('Krótki opis', max_length=200, blank=True)
     price = models.DecimalField('Cena', max_digits=10, decimal_places=2)
-    image = models.ImageField('Zdjecie', upload_to='components/')
+    image = models.ImageField('Zdjecie', upload_to='components/', blank=True)
+    thumbnail_url = models.URLField('URL miniaturki (zewn.)', blank=True)
+    icon_name = models.CharField('Nazwa ikony', max_length=50, blank=True,
+        help_text='Identyfikator ikony SVG w konfiguratorze (ufo, tree, laser, led, truss, fog)')
+    color = models.CharField('Kolor (hex)', max_length=7, blank=True,
+        help_text='Kolor modułu na scenie')
+    width_m = models.DecimalField('Szerokość modułu (m)', max_digits=5, decimal_places=1, default=2)
+    depth_m = models.DecimalField('Głębokość modułu (m)', max_digits=5, decimal_places=1, default=2)
     specs = models.JSONField('Specyfikacja techniczna', default=dict, blank=True)
     power_consumption = models.PositiveIntegerField('Pobor mocy (W)', default=0)
     weight_kg = models.DecimalField('Waga (kg)', max_digits=6, decimal_places=2, default=0)
     is_available = models.BooleanField('Dostepny', default=True)
-    max_quantity = models.PositiveIntegerField('Maks. ilosc', default=100)
+    max_quantity = models.PositiveIntegerField('Maks. ilosc', default=20)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         ordering = ['category', 'name']
-        verbose_name = 'Komponent'
-        verbose_name_plural = 'Komponenty'
+        verbose_name = 'Moduł sceny'
+        verbose_name_plural = 'Moduły sceny'
 
     def __str__(self):
         return f'{self.category.name} > {self.name}'
+
+    def get_image_url(self):
+        if self.image:
+            return self.image.url
+        return self.thumbnail_url or ''
 
 
 class Order(models.Model):
     """Zamowienie konfiguracji sceny od klienta."""
     STATUS_CHOICES = [
         ('draft', 'Szkic'),
-        ('submitted', 'Zlozone'),
+        ('submitted', 'Złożone'),
         ('reviewed', 'W recenzji'),
         ('quoted', 'Wycenione'),
         ('accepted', 'Zaakceptowane'),
@@ -90,24 +111,18 @@ class Order(models.Model):
         related_name='orders', verbose_name='Szablon'
     )
     status = models.CharField('Status', max_length=15, choices=STATUS_CHOICES, default='draft')
-
-    # Event details
     event_name = models.CharField('Nazwa wydarzenia', max_length=300)
     event_date = models.DateField('Data wydarzenia')
     event_end_date = models.DateField('Data zakonczenia', null=True, blank=True)
     event_location = models.CharField('Lokalizacja', max_length=500)
     expected_audience = models.PositiveIntegerField('Przewidywana publicznosc', default=0)
-
-    # Pricing
     subtotal = models.DecimalField('Kwota komponentow', max_digits=12, decimal_places=2, default=0)
     template_price = models.DecimalField('Cena szablonu', max_digits=10, decimal_places=2, default=0)
     discount = models.DecimalField('Rabat', max_digits=10, decimal_places=2, default=0)
     total_price = models.DecimalField('Cena calkowita', max_digits=12, decimal_places=2, default=0)
-
     notes = models.TextField('Uwagi klienta', blank=True)
     internal_notes = models.TextField('Notatki wewnetrzne', blank=True)
     scene_data = models.JSONField('Dane konfiguracji sceny', default=dict, blank=True)
-
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -120,7 +135,6 @@ class Order(models.Model):
         return f'#{self.pk} - {self.event_name} ({self.get_status_display()})'
 
     def recalculate_total(self):
-        """Przelicz calkowita kwote zamowienia."""
         self.subtotal = sum(item.subtotal for item in self.items.all())
         self.template_price = self.template.base_price if self.template else 0
         self.total_price = self.subtotal + self.template_price - self.discount
@@ -128,13 +142,13 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    """Wybrany komponent w zamowieniu."""
+    """Wybrany moduł w zamówieniu."""
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     component = models.ForeignKey(Component, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField('Ilosc', default=1)
     unit_price = models.DecimalField('Cena jednostkowa', max_digits=10, decimal_places=2)
     subtotal = models.DecimalField('Kwota', max_digits=10, decimal_places=2)
-    position_data = models.JSONField('Pozycja na scenie (x,y,z)', default=dict, blank=True)
+    position_data = models.JSONField('Pozycja na scenie (x,y)', default=dict, blank=True)
     notes = models.CharField('Uwagi', max_length=500, blank=True)
 
     class Meta:

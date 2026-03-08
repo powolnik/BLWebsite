@@ -16,12 +16,17 @@ urlpatterns = [
     path('api/shop/', include('apps.shop.urls')),
 ]
 
+# Media files
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+else:
+    # Serwuj media z Django w produkcji (admin uploads)
+    from config.views import media_serve
+    urlpatterns += [
+        re_path(r'^media/(?P<path>.*)$', media_serve),
+    ]
 
-# SPA catch-all — MUSI być na końcu!
-# WhiteNoise obsługuje /assets/ PRZED tym URL-em (middleware level)
-# Ten pattern łapie TYLKO ścieżki frontendowe (React Router)
+# SPA catch-all — MUSI być na końcu
 if not settings.DEBUG:
     from config.views import spa_index
     urlpatterns += [
