@@ -8,7 +8,7 @@ echo "=== [2/4] Instalacja Node.js + budowanie React ==="
 cd ../frontend
 npm install
 npm run build
-echo "React zbudowany!"
+echo "React zbudowan!"
 
 echo "=== [3/4] Kopiowanie React builda do Django ==="
 rm -rf ../backend/frontend_dist
