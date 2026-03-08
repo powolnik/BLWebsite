@@ -3,24 +3,37 @@ from .models import SceneTemplate, ComponentCategory, Component, Order, OrderIte
 
 
 class SceneTemplateSerializer(serializers.ModelSerializer):
+    image_url = serializers.SerializerMethodField()
+
     class Meta:
         model = SceneTemplate
         fields = [
             'id', 'name', 'slug', 'description', 'base_price',
-            'preview_image', 'model_3d_url', 'width', 'depth', 'height',
+            'image_url', 'width', 'depth', 'height',
         ]
+
+    def get_image_url(self, obj):
+        return obj.get_image_url()
 
 
 class ComponentSerializer(serializers.ModelSerializer):
     category_name = serializers.CharField(source='category.name', read_only=True)
+    category_color = serializers.CharField(source='category.color', read_only=True)
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Component
         fields = [
-            'id', 'name', 'slug', 'description', 'price', 'image',
-            'category', 'category_name', 'specs', 'power_consumption',
-            'weight_kg', 'is_available', 'max_quantity',
+            'id', 'name', 'slug', 'description', 'short_desc', 'price',
+            'image_url', 'icon_name', 'color',
+            'category', 'category_name', 'category_color',
+            'width_m', 'depth_m',
+            'specs', 'power_consumption', 'weight_kg',
+            'is_available', 'max_quantity',
         ]
+
+    def get_image_url(self, obj):
+        return obj.get_image_url()
 
 
 class ComponentCategorySerializer(serializers.ModelSerializer):
@@ -28,17 +41,18 @@ class ComponentCategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ComponentCategory
-        fields = ['id', 'name', 'slug', 'icon', 'description', 'order', 'components']
+        fields = ['id', 'name', 'slug', 'icon', 'color', 'description', 'order', 'components']
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
     component_name = serializers.CharField(source='component.name', read_only=True)
-    component_image = serializers.ImageField(source='component.image', read_only=True)
+    component_icon = serializers.CharField(source='component.icon_name', read_only=True)
+    component_color = serializers.CharField(source='component.color', read_only=True)
 
     class Meta:
         model = OrderItem
         fields = [
-            'id', 'component', 'component_name', 'component_image',
+            'id', 'component', 'component_name', 'component_icon', 'component_color',
             'quantity', 'unit_price', 'subtotal', 'position_data', 'notes',
         ]
         read_only_fields = ['unit_price', 'subtotal']
@@ -72,16 +86,30 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
-    """Serializer do tworzenia zamowienia."""
+    items = serializers.ListField(child=serializers.DictField(), write_only=True, required=False)
+
     class Meta:
         model = Order
         fields = [
             'template', 'event_name', 'event_date', 'event_end_date',
-            'event_location', 'expected_audience', 'notes', 'scene_data',
+            'event_location', 'expected_audience', 'notes', 'scene_data', 'items',
         ]
 
     def create(self, validated_data):
+        items_data = validated_data.pop('items', [])
         validated_data['user'] = self.context['request'].user
         if validated_data.get('template'):
             validated_data['template_price'] = validated_data['template'].base_price
-        return super().create(validated_data)
+        order = super().create(validated_data)
+        for item in items_data:
+            comp = Component.objects.get(pk=item['component_id'])
+            OrderItem.objects.create(
+                order=order,
+                component=comp,
+                quantity=item.get('quantity', 1),
+                unit_price=comp.price,
+                subtotal=comp.price * item.get('quantity', 1),
+                position_data=item.get('position_data', {}),
+            )
+        order.recalculate_total()
+        return order
