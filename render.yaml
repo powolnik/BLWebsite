@@ -5,8 +5,7 @@ databases:
   - name: blw
     databaseName: blw
     plan: free
-    region: frankfurt
-
+   
 services:
   # --- BACKEND (Django) ---
   - type: web
@@ -40,7 +39,7 @@ services:
     name: synapse-frontend
     runtime: static
     plan: free
-    region: frankfurt
+   
     rootDir: frontend
     buildCommand: npm install && npm run build
     staticPublishPath: dist
