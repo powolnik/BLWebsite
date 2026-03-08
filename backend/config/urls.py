@@ -15,9 +15,10 @@ if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 # SPA catch-all — MUSI być na końcu!
-# Wszystko co nie jest /api/, /admin/, /static/ trafia do React Router
+# WhiteNoise obsługuje /assets/ PRZED tym URL-em (middleware level)
+# Ten pattern łapie TYLKO ścieżki frontendowe (React Router)
 if not settings.DEBUG:
     from config.views import spa_index
     urlpatterns += [
-        re_path(r'^(?!api/|admin/|static/|media/).*$', spa_index),
+        re_path(r'^(?!api/|admin/|static/|media/|assets/).*$', spa_index),
     ]

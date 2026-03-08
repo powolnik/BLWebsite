@@ -6,8 +6,6 @@ DEBUG = False
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
 
 # --- DATABASE ---
-# Render udostępnia DATABASE_URL automatycznie po połączeniu bazy PostgreSQL
-# Przykład: postgres://user:pass@host.render.com:5432/dbname
 DATABASES = {
     'default': dj_database_url.config(
         default=os.environ.get('DATABASE_URL', ''),
@@ -17,31 +15,36 @@ DATABASES = {
     )
 }
 
-# --- FRONTEND SPA: React build serwowany przez Django + WhiteNoise ---
+# --- FRONTEND SPA: React build serwowany przez WhiteNoise ---
 # build.sh kopiuje frontend/dist/ → backend/frontend_dist/
 FRONTEND_DIR = BASE_DIR / 'frontend_dist'
+
+# WHITENOISE_ROOT — serwuje pliki z frontend_dist/ bezpośrednio w root (/)
+# Dzięki temu /assets/index-xxx.js → frontend_dist/assets/index-xxx.js
+# WhiteNoise obsługuje to PRZED Django URL routing — zero konfliktów z SPA catch-all
 if FRONTEND_DIR.exists():
-    TEMPLATES[0]['DIRS'].append(FRONTEND_DIR)
-    STATICFILES_DIRS = [
-        BASE_DIR / 'static',
-        FRONTEND_DIR,
-    ]
+    WHITENOISE_ROOT = str(FRONTEND_DIR)
+
+# NIE dodajemy frontend_dist do STATICFILES_DIRS — WhiteNoise Root to obsługuje
+# STATICFILES_DIRS tylko dla Django's own static files
+STATICFILES_DIRS = [
+    BASE_DIR / 'static',
+]
 
 # --- SECURITY ---
 SECURE_BROWSER_XSS_FILTER = True
 SECURE_CONTENT_TYPE_NOSNIFF = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SECURE = True
-
-# WAŻNE: Render obsługuje SSL na swoim proxy — NIE włączaj SSL_REDIRECT
-# bo dostaniesz nieskończoną pętlę przekierowań!
 SECURE_SSL_REDIRECT = False
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # --- STATIC FILES ---
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+# CompressedStaticFilesStorage (BEZ Manifest) — Vite już hashuje nazwy plików,
+# ManifestStaticFilesStorage dodałby DRUGI hash i zepsuł ścieżki w index.html
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# CORS — na produkcji frontend i API są na tej samej domenie
+# CORS
 CORS_ALLOWED_ORIGINS = os.environ.get(
     'CORS_ALLOWED_ORIGINS', ''
 ).split(',') if os.environ.get('CORS_ALLOWED_ORIGINS') else []
