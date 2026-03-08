@@ -8,27 +8,45 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        # ComponentCategory - brakujące pole color
+        # --- SceneTemplate ---
+        migrations.AddField(
+            model_name='scenetemplate',
+            name='thumbnail_url',
+            field=models.URLField(blank=True, default='', verbose_name='URL miniaturki (zewn.)'),
+            preserve_default=False,
+        ),
+
+        # --- ComponentCategory ---
         migrations.AddField(
             model_name='componentcategory',
             name='color',
             field=models.CharField(default='#00ff88', max_length=7, verbose_name='Kolor (hex)'),
         ),
-        # Component - brakujące pola
+
+        # --- Component ---
         migrations.AddField(
             model_name='component',
             name='short_desc',
-            field=models.CharField(blank=True, max_length=200, verbose_name='Krótki opis'),
+            field=models.CharField(blank=True, default='', max_length=200, verbose_name='Krótki opis'),
+            preserve_default=False,
+        ),
+        migrations.AddField(
+            model_name='component',
+            name='thumbnail_url',
+            field=models.URLField(blank=True, default='', verbose_name='URL miniaturki (zewn.)'),
+            preserve_default=False,
         ),
         migrations.AddField(
             model_name='component',
             name='icon_name',
-            field=models.CharField(blank=True, max_length=50, verbose_name='Nazwa ikony'),
+            field=models.CharField(blank=True, default='', max_length=50, verbose_name='Nazwa ikony'),
+            preserve_default=False,
         ),
         migrations.AddField(
             model_name='component',
             name='color',
             field=models.CharField(blank=True, default='', max_length=7, verbose_name='Kolor (hex)'),
+            preserve_default=False,
         ),
         migrations.AddField(
             model_name='component',
