@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Menu, X, ShoppingCart, User, Zap } from 'lucide-react';
+import { Menu, X, ShoppingCart, Zap } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
 import { useCartStore } from '../../store/cartStore';
 
