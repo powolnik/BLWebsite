@@ -2,19 +2,17 @@
 # Po pushu na repo, Render automatycznie skonfiguruje wszystkie serwisy
 
 databases:
-  - name: synapse-db
-    databaseName: synapse
-    user: synapse
+  - name: bwl
+    databaseName: bwl
     plan: free
     region: frankfurt
 
 services:
   # --- BACKEND (Django) ---
   - type: web
-    name: synapse-backend
+    name: bwl
     runtime: python
     plan: free
-    region: frankfurt
     rootDir: backend
     buildCommand: |
       pip install -r requirements.txt &&
