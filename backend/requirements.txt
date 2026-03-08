@@ -1,3 +1,4 @@
+# === PRODUKCJA ===
 django>=5.1,<5.2
 djangorestframework>=3.15,<4.0
 django-cors-headers>=4.4,<5.0
@@ -14,3 +15,13 @@ psycopg2-binary>=2.9
 django-storages>=1.14
 boto3>=1.34
 sentry-sdk>=2.0
+
+# === DEVELOPMENT ===
+django-debug-toolbar>=4.4
+django-extensions>=3.2
+ipython
+black
+isort
+flake8
+pytest-django
+factory-boy

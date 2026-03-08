@@ -1,4 +1,4 @@
-# ⚡ Blacklisghts Collective
+# ⚡ SYNAPSE Collective
 
 > Platforma kolektywu tworzącego sceny na festiwalach muzyki elektronicznej.
 
