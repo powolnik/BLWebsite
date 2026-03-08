@@ -20,7 +20,7 @@ DevOps:   Docker Compose (dev) | Render + Vercel (prod)
 
 ```bash
 # Sklonuj repo
-git clone <repo-url> && cd synapse-project
+git clone <repo-url> && cd BLWebsite
 
 # Uruchom wszystko
 docker-compose up -d
@@ -55,7 +55,7 @@ npm run dev
 ## 📁 Struktura projektu
 
 ```
-synapse-project/
+BLWebsite/
 ├── docker-compose.yml
 ├── backend/
 │   ├── config/              # Konfiguracja Django
