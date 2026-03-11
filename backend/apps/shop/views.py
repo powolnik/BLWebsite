@@ -1,10 +1,14 @@
-from rest_framework import viewsets, permissions, status, generics
-from rest_framework.decorators import action
+"""
+BLACK LIGHT Collective — Shop / Views
+Endpointy REST API sklepu: kategorie, produkty, koszyk,
+checkout (składanie zamówienia), walidacja kuponów, historia zamówień.
+"""
+from rest_framework import viewsets, permissions, status, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters
-from .models import ProductCategory, Product, Cart, ShopOrder
+
+from .models import ProductCategory, Product, ShopOrder
 from .serializers import (
     ProductCategorySerializer, ProductListSerializer, ProductDetailSerializer,
     CartSerializer, CartItemSerializer, ShopOrderSerializer,
@@ -14,6 +18,7 @@ from .services import CartService, CheckoutService
 
 
 class ProductCategoryViewSet(viewsets.ReadOnlyModelViewSet):
+    """Lista kategorii produktów (tylko root — parent=None, bez paginacji)."""
     queryset = ProductCategory.objects.filter(parent=None)
     serializer_class = ProductCategorySerializer
     lookup_field = 'slug'
@@ -21,6 +26,10 @@ class ProductCategoryViewSet(viewsets.ReadOnlyModelViewSet):
 
 
 class ProductViewSet(viewsets.ReadOnlyModelViewSet):
+    """Lista produktów z filtrami, wyszukiwarką i sortowaniem.
+
+    Lookup po slug. Lista → skrócony serializer, detal → pełny z galerią.
+    """
     queryset = Product.objects.filter(is_active=True).select_related('category')
     filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
     filterset_fields = ['category', 'is_featured']
@@ -29,16 +38,24 @@ class ProductViewSet(viewsets.ReadOnlyModelViewSet):
     lookup_field = 'slug'
 
     def get_serializer_class(self):
+        """Detal → pełny serializer; lista → skrócony."""
         if self.action == 'retrieve':
             return ProductDetailSerializer
         return ProductListSerializer
 
 
 class CartView(APIView):
-    """Koszyk uzytkownika."""
+    """Koszyk użytkownika — GET/POST/PUT/DELETE.
+
+    GET: pobierz koszyk
+    POST: dodaj produkt
+    PUT: zmień ilość
+    DELETE: wyczyść koszyk
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def get(self, request):
+        """Pobierz aktualny stan koszyka użytkownika."""
         cart = CartService.get_or_create_cart(user=request.user)
         return Response(CartSerializer(cart, context={'request': request}).data)
 
@@ -57,7 +74,7 @@ class CartView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
     def put(self, request):
-        """Zmien ilosc produktu w koszyku."""
+        """Zmień ilość produktu w koszyku."""
         cart = CartService.get_or_create_cart(user=request.user)
         item = CartService.update_quantity(
             cart, request.data.get('item_id'), request.data.get('quantity', 1)
@@ -67,22 +84,30 @@ class CartView(APIView):
         return Response(CartItemSerializer(item, context={'request': request}).data)
 
     def delete(self, request):
-        """Wyczysc koszyk."""
+        """Wyczyść wszystkie elementy koszyka."""
         cart = CartService.get_or_create_cart(user=request.user)
         CartService.clear_cart(cart)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class CheckoutView(APIView):
-    """Proces zamawiania."""
+    """Proces składania zamówienia sklepowego.
+
+    1. Walidacja danych wysyłkowych
+    2. Utworzenie zamówienia z elementów koszyka
+    3. Opcjonalne zastosowanie kuponu rabatowego
+    """
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        """Złóż zamówienie — konwertuje koszyk w zamówienie."""
         serializer = CheckoutSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         data = serializer.validated_data
 
         cart = CartService.get_or_create_cart(user=request.user)
+
+        # Wyciągnij dane wysyłkowe z walidowanych danych
         shipping_data = {
             k: data[k] for k in [
                 'shipping_name', 'shipping_street', 'shipping_city',
@@ -95,7 +120,7 @@ class CheckoutView(APIView):
         try:
             order = CheckoutService.create_order_from_cart(cart, shipping_data, request.user)
 
-            # Apply coupon if provided
+            # Zastosuj kupon jeśli podano
             if data.get('coupon_code'):
                 result = CheckoutService.validate_coupon(data['coupon_code'], order.total)
                 order.discount = result['discount']
@@ -109,9 +134,11 @@ class CheckoutView(APIView):
 
 
 class CouponValidateView(APIView):
+    """Walidacja kodu kuponu — sprawdza ważność, limity i minimalną kwotę."""
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
+        """Sprawdź kupon i zwróć obliczoną kwotę rabatu."""
         serializer = CouponValidateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         cart = CartService.get_or_create_cart(user=request.user)
@@ -125,9 +152,10 @@ class CouponValidateView(APIView):
 
 
 class ShopOrderViewSet(viewsets.ReadOnlyModelViewSet):
-    """Historia zamowien sklepowych."""
+    """Historia zamówień sklepowych użytkownika (tylko odczyt)."""
     serializer_class = ShopOrderSerializer
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
+        """Zwraca zamówienia bieżącego użytkownika z elementami."""
         return ShopOrder.objects.filter(user=self.request.user).prefetch_related('items')

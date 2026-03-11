@@ -1,5 +1,10 @@
+"""
+BLACK LIGHT Collective — Accounts / URLs
+Routing endpointów kont: rejestracja, profil, CRUD adresów.
+"""
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from . import views
 
 router = DefaultRouter()

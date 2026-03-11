@@ -1,5 +1,11 @@
+"""
+BLACK LIGHT Collective — Shop / URLs
+Routing endpointów sklepu: kategorie, produkty, koszyk,
+checkout, walidacja kuponów, historia zamówień.
+"""
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from . import views
 
 router = DefaultRouter()

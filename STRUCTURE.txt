@@ -1,0 +1,333 @@
+================================================================================
+  BLACK LIGHT Collective — Opis struktury aplikacji
+================================================================================
+
+  Platforma webowa kolektywu scenograficznego dla festiwali muzyki
+  elektronicznej. Łączy Django REST Framework (backend), React + TypeScript
+  (frontend) i silnik scen 3D (TypeScript / C++ WASM).
+
+  Deployment: Render (free tier) — frontend wbudowany w Django via WhiteNoise.
+
+================================================================================
+  GŁÓWNA STRUKTURA KATALOGÓW
+================================================================================
+
+  /
+  ├── backend/                  # Django REST Framework — API + serwer
+  │   ├── apps/                 # Aplikacje Django (domena biznesowa)
+  │   │   ├── accounts/         # Użytkownicy, role, adresy, autentykacja
+  │   │   ├── configurator/     # Konfigurator 2D scen (szablony, moduły, zamówienia)
+  │   │   ├── notifications/    # Powiadomienia email + in-app
+  │   │   ├── portfolio/        # Portfolio (projekty, galerie, zespół, opinie)
+  │   │   ├── scenebuilder/     # 3D Scene Builder (modele 3D, sceny, API)
+  │   │   └── shop/             # Sklep (produkty, koszyk, zamówienia, płatności)
+  │   ├── config/               # Konfiguracja Django (settings, urls, wsgi)
+  │   │   ├── settings/
+  │   │   │   ├── base.py       # Ustawienia wspólne (REST, JWT, CORS, Celery)
+  │   │   │   ├── dev.py        # Dev: SQLite, DEBUG=True
+  │   │   │   └── prod.py       # Prod: PostgreSQL, WhiteNoise, security
+  │   │   ├── urls.py           # Główny URL routing
+  │   │   ├── views.py          # SPA catch-all + media serving
+  │   │   ├── wsgi.py           # Gunicorn entry point
+  │   │   └── celery.py         # Celery config (opcjonalnie)
+  │   ├── build.sh              # Build: pip → npm build → copy → collectstatic
+  │   ├── start.sh              # Start: migrate → seed → gunicorn
+  │   ├── manage.py             # Django CLI
+  │   └── requirements.txt      # Python dependencies
+  │
+  ├── frontend/                 # React 19 + TypeScript + Vite
+  │   ├── src/
+  │   │   ├── components/       # Komponenty React
+  │   │   │   ├── configurator/ # Konfigurator 2D (ModulePicker, SceneCanvas, etc.)
+  │   │   │   ├── layout/       # Layout (Navbar, Footer, Layout wrapper)
+  │   │   │   ├── portfolio/    # Portfolio (ProjectCard, TeamCard)
+  │   │   │   ├── scenebuilder/ # 3D Scene Builder (5 komponentów)
+  │   │   │   ├── shop/         # Sklep (ProductCard)
+  │   │   │   └── ui/           # Reusable UI (Button, Card, Input, Modal, Loader)
+  │   │   ├── engine/           # Silnik scen TypeScript
+  │   │   │   ├── types.ts      # Typy: Model3D, SceneObjectData, AABB, Vec3, etc.
+  │   │   │   └── SceneEngine.ts # Octree + kolizje + fizyka + serializacja
+  │   │   ├── hooks/            # Custom hooks (useAuth, useCart)
+  │   │   ├── pages/            # Strony (Home, Portfolio, SceneBuilder, Shop, etc.)
+  │   │   ├── services/         # API clients (api.ts, auth.ts, portfolio.ts, etc.)
+  │   │   ├── store/            # Zustand stores (auth, cart, configurator)
+  │   │   ├── stores/           # Zustand store (sceneBuilder)
+  │   │   ├── types/            # Typy globalne
+  │   │   ├── App.tsx           # React Router + routes
+  │   │   └── main.tsx          # Entry point
+  │   ├── index.html            # HTML template
+  │   ├── package.json          # Node dependencies
+  │   ├── tsconfig.json         # TypeScript config
+  │   └── vite.config.ts        # Vite config (proxy /api → Django)
+  │
+  ├── scene_engine/             # C++ engine source (kompilacja → WASM)
+  │   └── src/
+  │       ├── scene_engine.h    # Header: Octree, AABB, SceneEngine classes
+  │       ├── scene_engine.cpp  # Implementacja: grid, kolizje, fizyka
+  │       └── bindings.cpp      # Emscripten bindings (C++ → JS)
+  │
+  ├── render.yaml               # Render Blueprint (auto-config serwisu + DB)
+  ├── docker-compose.yml        # Docker (opcjonalnie, local dev)
+  ├── README.md                 # Dokumentacja projektu
+  └── STRUCTURE.txt             # Ten plik
+
+================================================================================
+  BACKEND — SZCZEGÓŁOWY OPIS APLIKACJI DJANGO
+================================================================================
+
+  1. ACCOUNTS (apps.accounts)
+  ---------------------------
+  Zarządzanie użytkownikami z rozszerzonym modelem (CustomUser).
+
+  Pliki:
+    models.py       — CustomUser (role: admin/member/client, avatar, bio, firma)
+                      UserAddress (adresy dostawy z flagą domyślnego)
+    views.py        — RegisterView, ProfileView, UserAddressViewSet
+    serializers.py  — Rejestracja z walidacją haseł, profil, adresy
+    admin.py        — CustomUserAdmin z dodatkowymi polami
+    permissions.py  — IsOwnerOrReadOnly, IsTeamMember, IsAdminUser
+    urls.py         — /register/, /profile/, /addresses/
+    management/commands/seed_data.py — GŁÓWNY seed: 8 userów, zespół,
+                      festiwale, projekty, opinie, konfigurator, sklep, zamówienia
+
+
+  2. CONFIGURATOR (apps.configurator)
+  ------------------------------------
+  Konfigurator 2D scen festiwalowych z modułami i zamówieniami.
+
+  Pliki:
+    models.py       — SceneTemplate (5 szablonów), ComponentCategory (6 kat.),
+                      Component (21 modułów), Order (8 statusów), OrderItem
+    views.py        — CRUD ViewSets + akcje: add_item, remove_item, submit,
+                      power_summary
+    serializers.py  — Template, Category+Components (nested), Order (list/detail/
+                      create), OrderItem z cenami i pozycjami
+    services.py     — ConfiguratorService: dodawanie/usuwanie elementów,
+                      przeliczanie totali, walidacja, podsumowanie mocy/wagi
+    admin.py        — Inline OrderItems, prepopulated slugs, fieldsets
+    urls.py         — /templates/, /categories/, /components/, /orders/
+
+
+  3. SCENEBUILDER (apps.scenebuilder)
+  ------------------------------------
+  3D Scene Builder z uploadem modeli GLB/GLTF i zapisem scen.
+
+  Pliki:
+    models.py       — Model3DCategory, Model3D (plik GLB, bounding box cm,
+                      waga, cena, moc), Scene (JSON + binary BL3D, wymiary
+                      siatki, publiczność)
+    views.py        — Model3DCategoryViewSet, Model3DViewSet (z upload endpoint),
+                      SceneViewSet (CRUD + export-binary)
+    serializers.py  — Model3D z absolute URL, Scene detail/list/save,
+                      SceneSave z base64 binary data
+    admin.py        — Zarządzanie kategoriami, modelami 3D, scenami
+    urls.py         — /categories/, /models/, /models/upload/, /scenes/
+
+
+  4. PORTFOLIO (apps.portfolio)
+  -----------------------------
+  Prezentacja prac kolektywu z galeriami i opiniami.
+
+  Pliki:
+    models.py       — TeamMember, Festival, Project (z kategorią i cover image),
+                      ProjectImage (upload z podglądem), Testimonial (oceny 1-5)
+    views.py        — ReadOnly ViewSets z filtrami, wyszukiwaniem, paginacją
+    serializers.py  — Nested serializers (Project+Images+Testimonials)
+    admin.py        — ProjectAdmin z inline galeriami i podglądami zdjęć
+    urls.py         — /team/, /festivals/, /projects/, /testimonials/
+
+
+  5. SHOP (apps.shop)
+  --------------------
+  Sklep online z koszykiem, kuponami i zamówieniami.
+
+  Pliki:
+    models.py       — ProductCategory (hierarchiczna), Product (ze zdjęciami,
+                      SKU, stock), Cart + CartItem, ShopOrder + ShopOrderItem,
+                      Payment (Stripe/PayU/P24), Coupon (% lub kwotowy)
+    views.py        — Products (ReadOnly), CartView (CRUD), CheckoutView,
+                      CouponValidateView, ShopOrderViewSet
+    serializers.py  — Products (list/detail), Cart (nested items), Checkout,
+                      ShopOrder (nested items + grand_total)
+    services.py     — CartService (add/update/clear), CheckoutService
+                      (walidacja stock, tworzenie zamówienia, kupony)
+    admin.py        — Produkty z inline zdjęciami, zamówienia, płatności, kupony
+    urls.py         — /categories/, /products/, /cart/, /checkout/, /orders/
+
+
+  6. NOTIFICATIONS (apps.notifications)
+  --------------------------------------
+  System powiadomień i logów email.
+
+  Pliki:
+    models.py       — Notification (typy: order_status, payment, promo, system),
+                      EmailLog (sent/failed/queued)
+    services.py     — NotificationService: create, mark_as_read, send_email
+    tasks.py        — Celery tasks: send_order_confirmation_email,
+                      send_order_status_update (działa bez Celery — synchronicznie)
+    admin.py        — Przegląd powiadomień i logów email
+
+================================================================================
+  FRONTEND — SZCZEGÓŁOWY OPIS KOMPONENTÓW
+================================================================================
+
+  PAGES (src/pages/)
+  ------------------
+  Home.tsx            — Strona główna z hero, wyróżnionymi projektami, CTA
+  About.tsx           — O kolektywie + zespół
+  Portfolio.tsx       — Lista projektów z filtrami
+  PortfolioDetail.tsx — Szczegóły projektu z galerią
+  Configurator.tsx    — Konfigurator 2D scen (drag & drop modułów)
+  SceneBuilder.tsx    — 3D Scene Builder (layout 3-kolumnowy)
+  Shop.tsx            — Lista produktów
+  ProductDetail.tsx   — Szczegóły produktu
+  CartPage.tsx        — Koszyk
+  Login.tsx           — Logowanie
+  Register.tsx        — Rejestracja
+  Contact.tsx         — Kontakt
+  NotFound.tsx        — Strona 404
+
+  3D SCENE BUILDER COMPONENTS (src/components/scenebuilder/)
+  ----------------------------------------------------------
+  ModelLibrary.tsx    — Panel lewy: biblioteka modeli z wyszukiwaniem
+                        i kategoriami (accordion). 15 modeli demo.
+                        Kliknięcie dodaje model na środek sceny.
+
+  SceneCanvas.tsx     — Centrum: canvas Three.js z React Three Fiber.
+                        Kamera orbitalna, oświetlenie, environment map.
+                        Renderuje siatkę, obiekty i wskaźnik środka masy.
+
+  CubicGrid.tsx       — Siatka sześcienna 20m×10m×20m.
+                        Grid na podłodze, krawędzie graniczne (dashed lines),
+                        znaczniki wysokości, osie kolorowe (RGB = XYZ).
+                        Konfigurowalna podziałka (10cm do 5m).
+
+  SceneObject3D.tsx   — Pojedynczy obiekt na scenie. Box geometry + wireframe.
+                        Kolory: cyan (default), żółty (selected), zielony
+                        (hover), czerwony (kolizja). Klik = zaznacz.
+
+  PropertiesPanel.tsx — Panel prawy: narzędzia (translate/rotate/scale),
+                        toggle (siatka/kolizje/fizyka), transformacje
+                        zaznaczonego obiektu, panel fizyki sceny,
+                        eksport JSON, wyczyść scenę.
+
+  ENGINE (src/engine/)
+  --------------------
+  types.ts            — Interfejsy TypeScript:
+                        Vec3, AABB, Model3D, Model3DCategory, SceneObjectData,
+                        CollisionResult, PhysicsResult, ISceneEngine
+
+  SceneEngine.ts      — Port C++ silnika do TypeScript (500+ linii):
+                        ● OctreeNode — drzewo oktalne z MAX_DEPTH=8
+                          i MAX_OBJECTS=8 per node. insert/remove/query.
+                        ● SceneEngine implementuje ISceneEngine:
+                          - Siatka: width/height/depth cm, cellSize cm
+                          - Snap-to-grid: zaokrągla pozycje do siatki
+                          - AABB kolizje: getAABB() z uwzględnieniem skali
+                          - Octree: rebuild po każdej zmianie
+                          - Fizyka: masa, środek ciężkości, balans (odległość
+                            CoM od centrum), stabilność
+                          - Serializacja: toJSON/fromJSON + toBinary/fromBinary
+                            (format BL3D: header "BL3D" + version + objects)
+
+  STORES (src/store/ + src/stores/)
+  ---------------------------------
+  authStore.ts           — Zustand: JWT tokens, login/logout, user profile
+  cartStore.ts           — Zustand: koszyk (add/remove/update quantity)
+  configuratorStore.ts   — Zustand: konfigurator 2D (wybrany szablon, moduły)
+  sceneBuilderStore.ts   — Zustand: 3D Scene Builder (engine instance,
+                           sceneObjects Map, selection, collisions, physics,
+                           UI toggles, CRUD actions)
+
+  SERVICES (src/services/)
+  ------------------------
+  api.ts              — Axios instance z base URL + JWT interceptor
+  auth.ts             — API: login, register, getProfile
+  portfolio.ts        — API: getProjects, getProject, getTeam, etc.
+  configurator.ts     — API: getTemplates, getCategories, getComponents
+  shop.ts             — API: getProducts, cart CRUD, checkout
+
+================================================================================
+  SILNIK C++ (WASM) — scene_engine/src/
+================================================================================
+
+  scene_engine.h      — Definicje klas:
+                        ● Vec3 — wektor 3D z operacjami (add, sub, scale, length)
+                        ● AABB — axis-aligned bounding box (min, max, intersects,
+                          contains, expand)
+                        ● SceneObject — obiekt sceny (id, modelId, position,
+                          rotation, scale, bboxSize, weight, getAABB)
+                        ● OctreeNode — drzewo oktalne (insert, remove, query,
+                          subdivide) z MAX_DEPTH=8
+                        ● SceneEngine — główny silnik:
+                          - grid: width, height, depth, cellSize (cm)
+                          - objects: unordered_map<id, SceneObject>
+                          - octree: OctreeNode root
+                          - snapToGrid, addObject, moveObject, removeObject
+                          - checkCollision, calculatePhysics
+                          - toJSON, fromJSON, toBinary, fromBinary
+
+  scene_engine.cpp    — Implementacja (~400 linii):
+                        ● Octree: rekurencyjna subdywizja przestrzeni
+                        ● Kolizje: AABB intersection + octree broad phase
+                        ● Fizyka: ważona suma pozycji, odległość CoM od centrum
+                        ● Serializacja: JSON (nlohmann) + binary format BL3D
+                          (header 4B + version 4B + count 4B + objects)
+
+  bindings.cpp        — Emscripten bindings (embind):
+                        Eksportuje SceneEngine jako klasę JS z metodami:
+                        addObject, moveObject, removeObject, checkCollision,
+                        calculatePhysics, toJSON, fromJSON, toBinary, fromBinary
+
+  build.sh            — Skrypt kompilacji: emcc → scene_engine.js + .wasm
+                        Flagi: -O3, MODULARIZE, ALLOW_MEMORY_GROWTH
+
+================================================================================
+  DEPLOYMENT — RENDER
+================================================================================
+
+  render.yaml         — Blueprint: 1 web service (Python) + 1 PostgreSQL DB
+                        Oba na free tier, region: Frankfurt
+
+  build.sh            — Pipeline buildowania:
+                        1. pip install -r requirements.txt
+                        2. cd frontend && npm install --legacy-peer-deps
+                        3. npm run build (Vite → dist/)
+                        4. cp dist/* → backend/frontend_dist/
+                        5. python manage.py collectstatic
+
+  start.sh            — Pipeline startu:
+                        1. python manage.py makemigrations
+                        2. python manage.py migrate
+                        3. python manage.py seed_data (idempotentne)
+                        4. gunicorn config.wsgi:application
+
+  WhiteNoise:
+    - WHITENOISE_ROOT = backend/frontend_dist/
+    - Serwuje /assets/* (Vite build) bezpośrednio
+    - Django SPA catch-all serwuje index.html dla wszystkich innych ścieżek
+    - Brak ManifestStaticFilesStorage (Vite już hashuje nazwy plików)
+
+================================================================================
+  UWAGI TECHNICZNE
+================================================================================
+
+  1. React 19 + R3F:  Wymaga --legacy-peer-deps przy npm install.
+     R3F 9.x wspiera React 19 ale peer deps nie są jeszcze zaktualizowane.
+
+  2. Celery:  Zakomentowany w __init__.py (brak Redis na free tier).
+     Taski z notifications/tasks.py działają synchronicznie.
+
+  3. WASM:  Kod C++ jest gotowy, ale nie jest kompilowany w pipeline.
+     TypeScript port działa identycznie. Swap: zmiana importu w store.
+
+  4. Media files:  Na Render free tier brak persistent storage.
+     Pliki uploadowane przez admin (zdjęcia, modele 3D) znikną po
+     redeploy. Rozwiązanie docelowe: S3 / Cloudinary.
+
+  5. Seed data:  Dwa pliki seed_data (accounts + configurator) —
+     accounts/seed_data.py jest głównym, configurator/seed_data.py
+     jest backup/legacy. Komenda `python manage.py seed_data` uruchamia
+     wersję z accounts (bo jest pierwsza w INSTALLED_APPS).
+
+================================================================================

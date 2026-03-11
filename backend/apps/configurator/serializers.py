@@ -1,8 +1,15 @@
+"""
+BLACK LIGHT Collective — Configurator / Serializers
+Serializery dla szablonów scen, komponentów, kategorii,
+zamówień (lista / detal / tworzenie) i elementów zamówienia.
+"""
 from rest_framework import serializers
+
 from .models import SceneTemplate, ComponentCategory, Component, Order, OrderItem
 
 
 class SceneTemplateSerializer(serializers.ModelSerializer):
+    """Serializer szablonu sceny z dynamicznym URL obrazka."""
     image_url = serializers.SerializerMethodField()
 
     class Meta:
@@ -13,10 +20,12 @@ class SceneTemplateSerializer(serializers.ModelSerializer):
         ]
 
     def get_image_url(self, obj):
+        """Deleguje do modelu — preferuje upload, fallback na zewnętrzny URL."""
         return obj.get_image_url()
 
 
 class ComponentSerializer(serializers.ModelSerializer):
+    """Serializer komponentu z nazwą i kolorem kategorii."""
     category_name = serializers.CharField(source='category.name', read_only=True)
     category_color = serializers.CharField(source='category.color', read_only=True)
     image_url = serializers.SerializerMethodField()
@@ -33,10 +42,12 @@ class ComponentSerializer(serializers.ModelSerializer):
         ]
 
     def get_image_url(self, obj):
+        """Deleguje do modelu — preferuje upload, fallback na zewnętrzny URL."""
         return obj.get_image_url()
 
 
 class ComponentCategorySerializer(serializers.ModelSerializer):
+    """Serializer kategorii z zagnieżdżoną listą komponentów."""
     components = ComponentSerializer(many=True, read_only=True)
 
     class Meta:
@@ -45,6 +56,7 @@ class ComponentCategorySerializer(serializers.ModelSerializer):
 
 
 class OrderItemSerializer(serializers.ModelSerializer):
+    """Serializer elementu zamówienia z danymi wizualizacyjnymi komponentu."""
     component_name = serializers.CharField(source='component.name', read_only=True)
     component_icon = serializers.CharField(source='component.icon_name', read_only=True)
     component_color = serializers.CharField(source='component.color', read_only=True)
@@ -59,6 +71,7 @@ class OrderItemSerializer(serializers.ModelSerializer):
 
 
 class OrderListSerializer(serializers.ModelSerializer):
+    """Skrócony serializer zamówienia do widoku listy."""
     template_name = serializers.CharField(source='template.name', read_only=True, default='')
     item_count = serializers.IntegerField(source='items.count', read_only=True)
 
@@ -71,6 +84,7 @@ class OrderListSerializer(serializers.ModelSerializer):
 
 
 class OrderDetailSerializer(serializers.ModelSerializer):
+    """Pełny serializer zamówienia z listą elementów i szablonem."""
     items = OrderItemSerializer(many=True, read_only=True)
     template = SceneTemplateSerializer(read_only=True)
 
@@ -86,6 +100,7 @@ class OrderDetailSerializer(serializers.ModelSerializer):
 
 
 class OrderCreateSerializer(serializers.ModelSerializer):
+    """Serializer tworzenia zamówienia — przyjmuje listę elementów inline."""
     items = serializers.ListField(child=serializers.DictField(), write_only=True, required=False)
 
     class Meta:
@@ -96,11 +111,19 @@ class OrderCreateSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
+        """Tworzy zamówienie z elementami w jednej transakcji.
+
+        1. Wyciąga items z danych wejściowych
+        2. Przypisuje użytkownika i cenę szablonu
+        3. Tworzy zamówienie i jego elementy
+        4. Przelicza total
+        """
         items_data = validated_data.pop('items', [])
         validated_data['user'] = self.context['request'].user
         if validated_data.get('template'):
             validated_data['template_price'] = validated_data['template'].base_price
         order = super().create(validated_data)
+        # Tworzenie elementów zamówienia z cenami z chwili składania
         for item in items_data:
             comp = Component.objects.get(pk=item['component_id'])
             OrderItem.objects.create(

@@ -1,8 +1,16 @@
+/**
+ * BLACK LIGHT Collective — Home Page
+ * Landing page with an animated hero section, feature cards,
+ * and a call-to-action banner. Uses Framer Motion for scroll
+ * and entrance animations.
+ */
+
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, Zap, Lightbulb, Music, Palette } from 'lucide-react';
 import Button from '../components/ui/Button';
 
+/** Feature card data for the "what we do" section */
 const features = [
   { icon: Lightbulb, title: 'Oswietlenie', desc: 'Profesjonalne systemy laserowe, LED i ruchome glowice' },
   { icon: Palette, title: 'Dekoracje', desc: 'Unikalne instalacje artystyczne i scenografia' },
@@ -10,12 +18,15 @@ const features = [
   { icon: Zap, title: 'Efekty', desc: 'Pirotechnika sceniczna, CO2, konfetti, haze' },
 ];
 
+/** Home page — hero + features + CTA */
 export default function Home() {
   return (
     <div className="grid-bg">
+      {/* ── Hero section ──────────────────────────────── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[var(--color-dark-bg)] to-[var(--color-dark-bg)]" />
         <motion.div initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }} className="relative text-center px-4 max-w-4xl">
+          {/* Animated icon */}
           <motion.div initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ delay: 0.3, type: 'spring' }} className="w-20 h-20 mx-auto mb-8 rounded-2xl bg-[var(--color-dark-card)] neon-border flex items-center justify-center">
             <Zap className="w-10 h-10 text-[var(--color-neon-green)]" />
           </motion.div>
@@ -27,6 +38,8 @@ export default function Home() {
           </div>
         </motion.div>
       </section>
+
+      {/* ── Features section ──────────────────────────── */}
       <section className="py-24 px-4">
         <div className="max-w-6xl mx-auto">
           <h2 className="text-3xl md:text-4xl font-bold text-center mb-16">Co <span className="gradient-text">robimy</span></h2>
@@ -42,6 +55,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {/* ── CTA section ───────────────────────────────── */}
       <section className="py-24 px-4">
         <div className="max-w-4xl mx-auto text-center">
           <div className="p-12 rounded-2xl neon-border bg-[var(--color-dark-card)]">

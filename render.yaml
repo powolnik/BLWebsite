@@ -1,28 +1,28 @@
-# render.yaml — BLWebsite / BLACK LIGHT Collective
+# render.yaml — BLACK LIGHT Collective
 # JEDEN serwis obsługuje API + Frontend = zero dodatkowych kosztów!
-# Użycie: Render Dashboard → New → Blueprint → wybierz repo
 
 databases:
   - name: blacklight-db
     databaseName: blacklight
     user: blacklight
-    plan: free
-    region: frankfurt
+
+
 
 services:
   - type: web
     name: blacklight-collective
     runtime: python
-    plan: free
-    region: frankfurt
+
     rootDir: backend
     buildCommand: bash build.sh
-    startCommand: gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
+    startCommand: bash start.sh
     envVars:
       - key: DJANGO_SETTINGS_MODULE
         value: config.settings.prod
       - key: PYTHON_VERSION
         value: 3.12.0
+      - key: NODE_VERSION
+        value: 20.11.0
       - key: DJANGO_SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS

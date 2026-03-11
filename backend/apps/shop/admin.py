@@ -1,16 +1,23 @@
+"""
+BLACK LIGHT Collective — Shop / Admin
+Panel administracyjny sklepu: produkty, zamówienia, płatności, kupony.
+"""
 from django.contrib import admin
+
 from .models import (
-    ProductCategory, Product, ProductImage, Cart, CartItem,
+    ProductCategory, Product, ProductImage,
     ShopOrder, ShopOrderItem, Payment, Coupon,
 )
 
 
 class ProductImageInline(admin.TabularInline):
+    """Inline galerii zdjęć produktu."""
     model = ProductImage
     extra = 1
 
 
 class ShopOrderItemInline(admin.TabularInline):
+    """Inline elementów zamówienia sklepowego (tylko odczyt cen)."""
     model = ShopOrderItem
     extra = 0
     readonly_fields = ['unit_price', 'subtotal']
@@ -18,6 +25,7 @@ class ShopOrderItemInline(admin.TabularInline):
 
 @admin.register(ProductCategory)
 class ProductCategoryAdmin(admin.ModelAdmin):
+    """Panel admina kategorii z edytowalną kolejnością."""
     list_display = ['name', 'parent', 'order']
     list_editable = ['order']
     prepopulated_fields = {'slug': ('name',)}
@@ -25,6 +33,7 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    """Panel admina produktów z galerią inline."""
     list_display = ['name', 'category', 'price', 'stock', 'is_active', 'is_featured']
     list_filter = ['category', 'is_active', 'is_featured']
     search_fields = ['name', 'description', 'sku']
@@ -34,6 +43,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(ShopOrder)
 class ShopOrderAdmin(admin.ModelAdmin):
+    """Panel admina zamówień z hierarchią dat i inline elementami."""
     list_display = ['__str__', 'user', 'status', 'total', 'created_at']
     list_filter = ['status', 'created_at']
     search_fields = ['user__username', 'shipping_name']
@@ -43,11 +53,13 @@ class ShopOrderAdmin(admin.ModelAdmin):
 
 @admin.register(Payment)
 class PaymentAdmin(admin.ModelAdmin):
+    """Panel admina płatności."""
     list_display = ['__str__', 'provider', 'amount', 'status', 'created_at']
     list_filter = ['provider', 'status']
 
 
 @admin.register(Coupon)
 class CouponAdmin(admin.ModelAdmin):
+    """Panel admina kuponów rabatowych."""
     list_display = ['code', 'discount_type', 'discount_value', 'times_used', 'is_active']
     list_filter = ['discount_type', 'is_active']

@@ -1,3 +1,13 @@
+/**
+ * BLACK LIGHT Collective — Configurator Page
+ * Interactive scene configurator with a three-column responsive layout:
+ *   Left:   Module Picker (component categories & items)
+ *   Centre: 3D Scene Canvas (preview)
+ *   Right:  Scene Summary (totals, order form)
+ *
+ * Data (templates + categories) is fetched from the API on mount.
+ */
+
 import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useConfiguratorStore } from '../store/configuratorStore';
@@ -6,13 +16,16 @@ import SceneCanvas from '../components/configurator/SceneCanvas';
 import SceneSummary from '../components/configurator/SceneSummary';
 import Loader from '../components/ui/Loader';
 
+/** Configurator page — fetches data then renders the builder UI */
 export default function Configurator() {
   const { fetchData, isLoading, categories } = useConfiguratorStore();
 
+  // Fetch templates and categories on mount
   useEffect(() => {
     fetchData();
   }, [fetchData]);
 
+  // Show loader until data is ready
   if (isLoading || categories.length === 0) {
     return (
       <div className="grid-bg min-h-screen flex items-center justify-center">
@@ -39,7 +52,7 @@ export default function Configurator() {
           </p>
         </motion.div>
 
-        {/* 3-column layout */}
+        {/* Three-column layout */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -52,7 +65,7 @@ export default function Configurator() {
             <ModulePicker />
           </div>
 
-          {/* Center: Scene Canvas */}
+          {/* Centre: Scene Canvas */}
           <div className="order-1 lg:order-2 lg:h-full min-h-[300px]">
             <SceneCanvas />
           </div>

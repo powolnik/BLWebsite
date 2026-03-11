@@ -1,8 +1,15 @@
+"""
+BLACK LIGHT Collective — Portfolio / Serializers
+Serializery portfolio: zespół, festiwale, projekty (lista / detal),
+galeria zdjęć projektów, opinie klientów.
+"""
 from rest_framework import serializers
+
 from .models import TeamMember, Festival, Project, ProjectImage, Testimonial
 
 
 class TeamMemberSerializer(serializers.ModelSerializer):
+    """Serializer członka zespołu z linkami do social media."""
     class Meta:
         model = TeamMember
         fields = [
@@ -12,6 +19,7 @@ class TeamMemberSerializer(serializers.ModelSerializer):
 
 
 class FestivalSerializer(serializers.ModelSerializer):
+    """Serializer festiwalu z liczbą powiązanych projektów."""
     project_count = serializers.IntegerField(source='projects.count', read_only=True)
 
     class Meta:
@@ -20,13 +28,14 @@ class FestivalSerializer(serializers.ModelSerializer):
 
 
 class ProjectImageSerializer(serializers.ModelSerializer):
+    """Serializer zdjęcia projektu."""
     class Meta:
         model = ProjectImage
         fields = ['id', 'image', 'caption', 'is_cover', 'order']
 
 
 class ProjectListSerializer(serializers.ModelSerializer):
-    """Skrocony serializer do listy projektow."""
+    """Skrócony serializer do listy projektów — z okładką i nazwą festiwalu."""
     festival_name = serializers.CharField(source='festival.name', read_only=True, default='')
     cover_image = serializers.ImageField(read_only=True)
 
@@ -39,7 +48,7 @@ class ProjectListSerializer(serializers.ModelSerializer):
 
 
 class ProjectDetailSerializer(serializers.ModelSerializer):
-    """Pelny serializer z galeria i opiniami."""
+    """Pełny serializer projektu z galerią i opiniami."""
     images = ProjectImageSerializer(many=True, read_only=True)
     festival = FestivalSerializer(read_only=True)
     testimonials = serializers.SerializerMethodField()
@@ -53,11 +62,13 @@ class ProjectDetailSerializer(serializers.ModelSerializer):
         ]
 
     def get_testimonials(self, obj):
+        """Zwraca tylko widoczne opinie powiązane z tym projektem."""
         qs = obj.testimonials.filter(is_visible=True)
         return TestimonialSerializer(qs, many=True).data
 
 
 class TestimonialSerializer(serializers.ModelSerializer):
+    """Serializer opinii klienta z tytułem powiązanego projektu."""
     project_title = serializers.CharField(source='project.title', read_only=True, default='')
 
     class Meta:

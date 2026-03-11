@@ -1,9 +1,19 @@
+"""
+BLACK LIGHT Collective — Configurator / Models
+Modele danych konfiguratora scen festiwalowych.
+Zawiera: szablony scen, kategorie komponentów, komponenty (moduły),
+zamówienia konfiguracji oraz ich elementy (OrderItem).
+"""
 from django.db import models
 from django.conf import settings
 
 
 class SceneTemplate(models.Model):
-    """Szablon sceny (np. Main Stage, Techno Cave, Forest Stage)."""
+    """Szablon sceny (np. Main Stage, Techno Cave, Forest Stage).
+
+    Definiuje bazową cenę i wymiary sceny. Klient wybiera szablon
+    jako punkt wyjścia do konfiguracji.
+    """
     name = models.CharField('Nazwa', max_length=200)
     slug = models.SlugField('Slug', unique=True)
     description = models.TextField('Opis')
@@ -26,13 +36,17 @@ class SceneTemplate(models.Model):
         return self.name
 
     def get_image_url(self):
+        """Zwraca URL obrazka — preferuje upload, fallback na zewnętrzny URL."""
         if self.preview_image:
             return self.preview_image.url
         return self.thumbnail_url or ''
 
 
 class ComponentCategory(models.Model):
-    """Kategoria komponentow: Oświetlenie, Dekoracje, Dźwięk, Efekty specjalne."""
+    """Kategoria komponentów: Oświetlenie, Dekoracje, Dźwięk, Efekty specjalne.
+
+    Porządkuje komponenty w konfiguratorze i przypisuje im kolor/ikonę.
+    """
     name = models.CharField('Nazwa', max_length=100)
     slug = models.SlugField('Slug', unique=True)
     icon = models.CharField('Ikona (emoji/klasa)', max_length=50, blank=True)
@@ -51,7 +65,11 @@ class ComponentCategory(models.Model):
 
 
 class Component(models.Model):
-    """Pojedynczy moduł do wyboru w konfiguratorze sceny."""
+    """Pojedynczy moduł do wyboru w konfiguratorze sceny.
+
+    Reprezentuje element wyposażenia sceny (np. laser, kratownica, maszyna
+    do mgły) wraz z parametrami technicznymi, ceną i wizualizacją.
+    """
     category = models.ForeignKey(
         ComponentCategory, on_delete=models.CASCADE, related_name='components'
     )
@@ -84,13 +102,19 @@ class Component(models.Model):
         return f'{self.category.name} > {self.name}'
 
     def get_image_url(self):
+        """Zwraca URL obrazka — preferuje upload, fallback na zewnętrzny URL."""
         if self.image:
             return self.image.url
         return self.thumbnail_url or ''
 
 
 class Order(models.Model):
-    """Zamowienie konfiguracji sceny od klienta."""
+    """Zamówienie konfiguracji sceny od klienta.
+
+    Przechodzi przez cykl życia: szkic → złożone → wycenione → zaakceptowane
+    → w realizacji → zrealizowane. Zawiera dane wydarzenia, wybrane
+    komponenty (OrderItem) i obliczoną cenę.
+    """
     STATUS_CHOICES = [
         ('draft', 'Szkic'),
         ('submitted', 'Złożone'),
@@ -135,6 +159,7 @@ class Order(models.Model):
         return f'#{self.pk} - {self.event_name} ({self.get_status_display()})'
 
     def recalculate_total(self):
+        """Przelicza kwotę zamówienia: suma komponentów + cena szablonu − rabat."""
         self.subtotal = sum(item.subtotal for item in self.items.all())
         self.template_price = self.template.base_price if self.template else 0
         self.total_price = self.subtotal + self.template_price - self.discount
@@ -142,7 +167,11 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    """Wybrany moduł w zamówieniu."""
+    """Wybrany moduł w zamówieniu.
+
+    Przechowuje ilość, cenę jednostkową (z chwili dodania)
+    oraz opcjonalną pozycję na schemacie sceny (position_data).
+    """
     order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
     component = models.ForeignKey(Component, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField('Ilosc', default=1)
@@ -159,6 +188,7 @@ class OrderItem(models.Model):
         return f'{self.component.name} x{self.quantity}'
 
     def save(self, *args, **kwargs):
+        """Automatycznie ustawia cenę jednostkową i oblicza subtotal przy zapisie."""
         self.unit_price = self.component.price
         self.subtotal = self.unit_price * self.quantity
         super().save(*args, **kwargs)

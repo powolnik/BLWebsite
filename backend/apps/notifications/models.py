@@ -1,9 +1,19 @@
+"""
+BLACK LIGHT Collective — Notifications / Models
+Modele powiadomień i logów emaili.
+Notification przechowuje wewnętrzne powiadomienia użytkownika,
+EmailLog rejestruje historię wysłanych wiadomości email.
+"""
 from django.db import models
 from django.conf import settings
 
 
 class Notification(models.Model):
-    """Powiadomienie dla uzytkownika."""
+    """Powiadomienie dla użytkownika.
+
+    Typy: status zamówienia, nowe zamówienie, płatność, systemowe, promocja.
+    Pole `link` opcjonalnie kieruje do powiązanego zasobu w aplikacji.
+    """
     TYPE_CHOICES = [
         ('order_status', 'Status zamowienia'),
         ('order_new', 'Nowe zamowienie'),
@@ -33,7 +43,11 @@ class Notification(models.Model):
 
 
 class EmailLog(models.Model):
-    """Log wyslanych emaili."""
+    """Log wysłanych emaili.
+
+    Śledzi status wysyłki: w kolejce → wysłany / nieudany.
+    Przechowuje treść i ewentualny komunikat błędu.
+    """
     STATUS_CHOICES = [
         ('sent', 'Wyslany'),
         ('failed', 'Nieudany'),

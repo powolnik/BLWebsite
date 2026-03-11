@@ -1,11 +1,18 @@
+"""
+BLACK LIGHT Collective — Shop / Serializers
+Serializery sklepu: kategorie (z hierarchią), produkty (lista / detal),
+koszyk, zamówienia, checkout, walidacja kuponów.
+"""
 from rest_framework import serializers
+
 from .models import (
     ProductCategory, Product, ProductImage, Cart, CartItem,
-    ShopOrder, ShopOrderItem, Payment, Coupon,
+    ShopOrder, ShopOrderItem,
 )
 
 
 class ProductCategorySerializer(serializers.ModelSerializer):
+    """Serializer kategorii produktów z rekurencyjnymi podkategoriami."""
     product_count = serializers.IntegerField(source='products.count', read_only=True)
     children = serializers.SerializerMethodField()
 
@@ -14,17 +21,20 @@ class ProductCategorySerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'slug', 'description', 'image', 'parent', 'product_count', 'children']
 
     def get_children(self, obj):
+        """Rekurencyjnie serializuje podkategorie."""
         children = obj.children.all()
         return ProductCategorySerializer(children, many=True).data if children else []
 
 
 class ProductImageSerializer(serializers.ModelSerializer):
+    """Serializer zdjęcia produktu."""
     class Meta:
         model = ProductImage
         fields = ['id', 'image', 'alt_text', 'is_primary', 'order']
 
 
 class ProductListSerializer(serializers.ModelSerializer):
+    """Skrócony serializer produktu do widoku listy."""
     category_name = serializers.CharField(source='category.name', read_only=True)
     primary_image = serializers.ImageField(read_only=True)
 
@@ -38,6 +48,7 @@ class ProductListSerializer(serializers.ModelSerializer):
 
 
 class ProductDetailSerializer(serializers.ModelSerializer):
+    """Pełny serializer produktu z kategorią i galerią."""
     category = ProductCategorySerializer(read_only=True)
     images = ProductImageSerializer(many=True, read_only=True)
 
@@ -52,6 +63,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
 
 
 class CartItemSerializer(serializers.ModelSerializer):
+    """Serializer elementu koszyka z danymi produktu."""
     product_name = serializers.CharField(source='product.name', read_only=True)
     product_price = serializers.DecimalField(
         source='product.price', read_only=True, max_digits=10, decimal_places=2
@@ -67,6 +79,7 @@ class CartItemSerializer(serializers.ModelSerializer):
         ]
 
     def get_product_image(self, obj):
+        """Zwraca absolutny URL głównego zdjęcia produktu."""
         img = obj.product.primary_image
         if img:
             request = self.context.get('request')
@@ -75,6 +88,7 @@ class CartItemSerializer(serializers.ModelSerializer):
 
 
 class CartSerializer(serializers.ModelSerializer):
+    """Serializer koszyka z listą elementów i podsumowaniem."""
     items = CartItemSerializer(many=True, read_only=True)
     total = serializers.DecimalField(read_only=True, max_digits=12, decimal_places=2)
     item_count = serializers.IntegerField(read_only=True)
@@ -85,12 +99,14 @@ class CartSerializer(serializers.ModelSerializer):
 
 
 class ShopOrderItemSerializer(serializers.ModelSerializer):
+    """Serializer elementu zamówienia sklepowego."""
     class Meta:
         model = ShopOrderItem
         fields = ['id', 'product_name', 'quantity', 'unit_price', 'subtotal']
 
 
 class ShopOrderSerializer(serializers.ModelSerializer):
+    """Serializer zamówienia sklepowego z elementami i grand_total."""
     items = ShopOrderItemSerializer(many=True, read_only=True)
     grand_total = serializers.DecimalField(read_only=True, max_digits=12, decimal_places=2)
 
@@ -105,7 +121,7 @@ class ShopOrderSerializer(serializers.ModelSerializer):
 
 
 class CheckoutSerializer(serializers.Serializer):
-    """Serializer do procesu checkout."""
+    """Serializer danych checkout — dane wysyłkowe, dostawca płatności, kupon."""
     shipping_name = serializers.CharField(max_length=200)
     shipping_street = serializers.CharField(max_length=300)
     shipping_city = serializers.CharField(max_length=100)
@@ -117,4 +133,5 @@ class CheckoutSerializer(serializers.Serializer):
 
 
 class CouponValidateSerializer(serializers.Serializer):
+    """Serializer walidacji kodu kuponu."""
     code = serializers.CharField(max_length=50)

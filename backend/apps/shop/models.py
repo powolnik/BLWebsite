@@ -1,9 +1,17 @@
+"""
+BLACK LIGHT Collective — Shop / Models
+Modele sklepu: kategorie produktów, produkty (merch, akcesoria),
+koszyk zakupowy, zamówienia sklepowe, płatności i kupony rabatowe.
+"""
 from django.db import models
 from django.conf import settings
 
 
 class ProductCategory(models.Model):
-    """Kategoria produktow w sklepie."""
+    """Kategoria produktów w sklepie.
+
+    Wspiera hierarchię — pole parent umożliwia zagnieżdżanie kategorii.
+    """
     name = models.CharField('Nazwa', max_length=200)
     slug = models.SlugField('Slug', unique=True)
     description = models.TextField('Opis', blank=True)
@@ -24,7 +32,11 @@ class ProductCategory(models.Model):
 
 
 class Product(models.Model):
-    """Produkt w sklepie (merch, elementy scen, akcesoria)."""
+    """Produkt w sklepie (merch, elementy scen, akcesoria).
+
+    Pola compare_price i is_featured służą do prezentacji
+    promocji i wyróżnionych produktów na stronie głównej.
+    """
     name = models.CharField('Nazwa', max_length=300)
     slug = models.SlugField('Slug', unique=True)
     category = models.ForeignKey(
@@ -55,10 +67,12 @@ class Product(models.Model):
 
     @property
     def is_in_stock(self):
+        """Sprawdza, czy produkt jest dostępny w magazynie."""
         return self.stock > 0
 
     @property
     def primary_image(self):
+        """Zwraca główne zdjęcie produktu (is_primary=True lub pierwsze)."""
         img = self.images.filter(is_primary=True).first()
         if not img:
             img = self.images.first()
@@ -66,7 +80,7 @@ class Product(models.Model):
 
 
 class ProductImage(models.Model):
-    """Zdjecie produktu."""
+    """Zdjęcie produktu — galeria z oznaczeniem głównego zdjęcia."""
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField('Zdjecie', upload_to='shop/products/')
     alt_text = models.CharField('Tekst alternatywny', max_length=200, blank=True)
@@ -81,7 +95,11 @@ class ProductImage(models.Model):
 
 
 class Cart(models.Model):
-    """Koszyk zakupowy."""
+    """Koszyk zakupowy.
+
+    Może być powiązany z użytkownikiem (zalogowanym) lub sesją (anonimowym).
+    Właściwości total i item_count obliczane dynamicznie z elementów.
+    """
     user = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
         null=True, blank=True, related_name='cart'
@@ -100,15 +118,20 @@ class Cart(models.Model):
 
     @property
     def total(self):
+        """Suma wartości wszystkich elementów koszyka."""
         return sum(item.subtotal for item in self.items.all())
 
     @property
     def item_count(self):
+        """Łączna ilość sztuk w koszyku."""
         return sum(item.quantity for item in self.items.all())
 
 
 class CartItem(models.Model):
-    """Element koszyka."""
+    """Element koszyka — produkt z ilością.
+
+    unique_together zapobiega duplikatom tego samego produktu w koszyku.
+    """
     cart = models.ForeignKey(Cart, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField('Ilosc', default=1)
@@ -124,11 +147,16 @@ class CartItem(models.Model):
 
     @property
     def subtotal(self):
+        """Wartość pozycji: cena × ilość."""
         return self.product.price * self.quantity
 
 
 class ShopOrder(models.Model):
-    """Zamowienie ze sklepu."""
+    """Zamówienie ze sklepu.
+
+    Cykl życia: oczekuje → opłacone → w realizacji → wysłane → dostarczone.
+    Zawiera dane wysyłkowe i numer śledzenia.
+    """
     STATUS_CHOICES = [
         ('pending', 'Oczekuje'),
         ('paid', 'Oplacone'),
@@ -148,7 +176,7 @@ class ShopOrder(models.Model):
     shipping_cost = models.DecimalField('Koszt wysylki', max_digits=8, decimal_places=2, default=0)
     discount = models.DecimalField('Rabat', max_digits=10, decimal_places=2, default=0)
 
-    # Shipping info
+    # Dane wysyłkowe
     shipping_name = models.CharField('Imie i nazwisko', max_length=200)
     shipping_street = models.CharField('Ulica', max_length=300)
     shipping_city = models.CharField('Miasto', max_length=100)
@@ -170,11 +198,16 @@ class ShopOrder(models.Model):
 
     @property
     def grand_total(self):
+        """Łączna kwota: suma produktów + wysyłka − rabat."""
         return self.total + self.shipping_cost - self.discount
 
 
 class ShopOrderItem(models.Model):
-    """Element zamowienia sklepowego."""
+    """Element zamówienia sklepowego.
+
+    Przechowuje kopię nazwy i ceny produktu z chwili zamówienia
+    (product_name, unit_price), aby historia była odporna na zmiany cen.
+    """
     order = models.ForeignKey(ShopOrder, on_delete=models.CASCADE, related_name='items')
     product = models.ForeignKey(Product, on_delete=models.SET_NULL, null=True)
     product_name = models.CharField('Nazwa produktu', max_length=300)
@@ -187,7 +220,11 @@ class ShopOrderItem(models.Model):
 
 
 class Payment(models.Model):
-    """Platnosc (Stripe / PayU / Przelewy24)."""
+    """Płatność (Stripe / PayU / Przelewy24).
+
+    Może być powiązana z zamówieniem sklepowym lub konfiguratorem scen.
+    Przechowuje zewnętrzne ID transakcji i metadane dostawcy.
+    """
     PROVIDER_CHOICES = [
         ('stripe', 'Stripe'),
         ('payu', 'PayU'),
@@ -226,7 +263,11 @@ class Payment(models.Model):
 
 
 class Coupon(models.Model):
-    """Kupon rabatowy."""
+    """Kupon rabatowy — procentowy lub kwotowy.
+
+    Walidacja: data ważności, minimalna kwota zamówienia,
+    maksymalna liczba użyć.
+    """
     DISCOUNT_TYPE_CHOICES = [
         ('percentage', 'Procentowy'),
         ('fixed', 'Kwotowy'),

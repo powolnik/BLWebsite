@@ -1,5 +1,10 @@
+"""
+BLACK LIGHT Collective — Configurator / URLs
+Routing endpointów konfiguratora: szablony, kategorie, komponenty, zamówienia.
+"""
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
+
 from . import views
 
 router = DefaultRouter()

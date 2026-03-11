@@ -1,15 +1,23 @@
+"""
+BLACK LIGHT Collective — Portfolio / Admin
+Panel administracyjny portfolio: zespół, festiwale, projekty z galerią, opinie.
+Zawiera podglądy miniaturek obrazków inline.
+"""
 from django.contrib import admin
 from django.utils.html import format_html
+
 from .models import TeamMember, Festival, Project, ProjectImage, Testimonial
 
 
 class ProjectImageInline(admin.TabularInline):
+    """Inline galerii zdjęć projektu z podglądem miniaturek."""
     model = ProjectImage
     extra = 3
     fields = ['image', 'image_preview', 'caption', 'is_cover', 'order']
     readonly_fields = ['image_preview']
 
     def image_preview(self, obj):
+        """Renderuje miniaturkę zdjęcia w panelu admina."""
         if obj.image:
             return format_html(
                 '<img src="{}" style="max-height:80px; border-radius:4px;" />',
@@ -21,11 +29,13 @@ class ProjectImageInline(admin.TabularInline):
 
 @admin.register(TeamMember)
 class TeamMemberAdmin(admin.ModelAdmin):
+    """Panel admina członków zespołu z edytowalną kolejnością."""
     list_display = ['name', 'role', 'photo_preview', 'order', 'is_active']
     list_editable = ['order', 'is_active']
     search_fields = ['name', 'role']
 
     def photo_preview(self, obj):
+        """Renderuje okrągłą miniaturkę zdjęcia profilowego."""
         if obj.photo:
             return format_html(
                 '<img src="{}" style="max-height:40px; border-radius:50%;" />',
@@ -37,10 +47,12 @@ class TeamMemberAdmin(admin.ModelAdmin):
 
 @admin.register(Festival)
 class FestivalAdmin(admin.ModelAdmin):
+    """Panel admina festiwali z podglądem logo."""
     list_display = ['name', 'location', 'logo_preview']
     search_fields = ['name', 'location']
 
     def logo_preview(self, obj):
+        """Renderuje miniaturkę logo festiwalu."""
         if obj.logo:
             return format_html(
                 '<img src="{}" style="max-height:30px;" />',
@@ -52,6 +64,7 @@ class FestivalAdmin(admin.ModelAdmin):
 
 @admin.register(Project)
 class ProjectAdmin(admin.ModelAdmin):
+    """Panel admina projektów z galerią inline i hierarchią dat."""
     list_display = ['title', 'festival', 'category', 'date', 'is_featured', 'image_count']
     list_filter = ['category', 'is_featured', 'festival']
     search_fields = ['title', 'description', 'client']
@@ -61,6 +74,7 @@ class ProjectAdmin(admin.ModelAdmin):
     save_on_top = True
 
     def image_count(self, obj):
+        """Wyświetla liczbę zdjęć z kolorowym wskaźnikiem."""
         count = obj.images.count()
         return format_html(
             '<span style="color: {};">{} zdjęć</span>',
@@ -72,5 +86,6 @@ class ProjectAdmin(admin.ModelAdmin):
 
 @admin.register(Testimonial)
 class TestimonialAdmin(admin.ModelAdmin):
+    """Panel admina opinii klientów."""
     list_display = ['author', 'rating', 'is_visible', 'created_at']
     list_filter = ['rating', 'is_visible']

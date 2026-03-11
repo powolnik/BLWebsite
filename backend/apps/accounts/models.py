@@ -1,12 +1,23 @@
+"""
+BLACK LIGHT Collective — Accounts / Models
+Modele danych użytkowników i ich adresów.
+Rozszerza wbudowany model User Django o pola profilowe
+(rola, telefon, firma, awatar) oraz powiązane adresy wysyłkowe.
+"""
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
 class CustomUser(AbstractUser):
-    """Rozszerzony model uzytkownika."""
+    """Rozszerzony model użytkownika.
+
+    Dziedziczy po AbstractUser — zachowuje standardowe pola Django
+    (username, email, password, …) i dodaje pola specyficzne
+    dla platformy BLACK LIGHT: rolę, telefon, avatar, bio, firmę, stronę.
+    """
     ROLE_CHOICES = [
         ('client', 'Klient'),
-        ('member', 'Czlonek zespolu'),
+        ('member', 'Członek zespołu'),
         ('admin', 'Administrator'),
     ]
     phone = models.CharField('Telefon', max_length=20, blank=True)
@@ -22,11 +33,16 @@ class CustomUser(AbstractUser):
         ordering = ['-date_joined']
 
     def __str__(self):
+        """Zwraca pełne imię i nazwisko lub username jako fallback."""
         return self.get_full_name() or self.username
 
 
 class UserAddress(models.Model):
-    """Adres uzytkownika (do zamowien i wysylek)."""
+    """Adres użytkownika (do zamówień i wysyłek).
+
+    Każdy użytkownik może mieć wiele adresów, ale tylko jeden
+    może być oznaczony jako domyślny (is_default=True).
+    """
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='addresses')
     label = models.CharField('Etykieta', max_length=50, default='Domowy')
     street = models.CharField('Ulica', max_length=300)

@@ -1,8 +1,16 @@
+"""
+BLACK LIGHT Collective — Portfolio / Models
+Modele portfolio: członkowie zespołu, festiwale, projekty (realizacje scen),
+galeria zdjęć projektów oraz opinie klientów.
+"""
 from django.db import models
 
 
 class TeamMember(models.Model):
-    """Czlonek kolektywu BLACK LIGHT."""
+    """Członek kolektywu BLACK LIGHT.
+
+    Reprezentuje osobę w zespole z profilem, rolą i linkami do social media.
+    """
     name = models.CharField('Imie i nazwisko', max_length=200)
     role = models.CharField('Rola', max_length=200)
     bio = models.TextField('Bio')
@@ -24,7 +32,7 @@ class TeamMember(models.Model):
 
 
 class Festival(models.Model):
-    """Festiwal muzyczny."""
+    """Festiwal muzyczny — powiązany z realizacjami w portfolio."""
     name = models.CharField('Nazwa', max_length=300)
     location = models.CharField('Lokalizacja', max_length=500)
     website = models.URLField('Strona WWW', blank=True)
@@ -41,7 +49,11 @@ class Festival(models.Model):
 
 
 class Project(models.Model):
-    """Zrealizowany projekt sceny."""
+    """Zrealizowany projekt sceny.
+
+    Kategorie: main_stage, side_stage, art_installation, lighting, full_production.
+    Może być powiązany z festiwalem i oznaczony jako wyróżniany.
+    """
     CATEGORY_CHOICES = [
         ('main_stage', 'Main Stage'),
         ('side_stage', 'Side Stage'),
@@ -76,12 +88,13 @@ class Project(models.Model):
 
     @property
     def cover_image(self):
+        """Zwraca zdjęcie okładkowe projektu (pierwsze z is_cover=True)."""
         img = self.images.filter(is_cover=True).first()
         return img.image if img else None
 
 
 class ProjectImage(models.Model):
-    """Zdjecie projektu."""
+    """Zdjęcie projektu — galeria z opcjonalną okładką."""
     project = models.ForeignKey(
         Project, on_delete=models.CASCADE, related_name='images'
     )
@@ -98,7 +111,7 @@ class ProjectImage(models.Model):
 
 
 class Testimonial(models.Model):
-    """Opinia klienta."""
+    """Opinia klienta — powiązana opcjonalnie z projektem."""
     author = models.CharField('Autor', max_length=200)
     role = models.CharField('Rola / firma', max_length=200, blank=True)
     content = models.TextField('Tresc')

@@ -11,6 +11,7 @@ import CartPage from './pages/CartPage';
 import Contact from './pages/Contact';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import SceneBuilder from './pages/SceneBuilder';
 import NotFound from './pages/NotFound';
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
         <Route path="/configurator" element={<Configurator />} />
+        <Route path="/scene-builder" element={<SceneBuilder />} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/shop/:slug" element={<ProductDetail />} />
         <Route path="/cart" element={<CartPage />} />
