@@ -1,37 +1,38 @@
 #!/usr/bin/env bash
-# =============================================================================
-# BLACK LIGHT Collective — Build Script
-# Skrypt budowania projektu (używany na platformie Render / CI/CD).
-# Kolejność: Python deps → React build → kopiowanie builda → collectstatic.
-# =============================================================================
-set -o errexit  # Przerwij przy pierwszym błędzie
+# BLACK LIGHT Collective — Build Script (Render)
+set -o errexit
 
-# --- Krok 1: Instalacja zależności Python ---
-echo "=== [1/4] Instalacja Python dependencies ==="
+# --- Krok 1: Python deps ---
+echo "=== [1/5] Installing Python dependencies ==="
 pip install -r requirements.txt
 
-# --- Krok 2: Budowanie frontendu React (Vite) ---
-echo "=== [2/4] Instalacja Node.js + budowanie React ==="
-cd ../frontend
-npm install --legacy-peer-deps   # --legacy-peer-deps dla kompatybilności zależności
-npm run build
-echo "React zbudowany!"
+# --- Krok 2: Frontend .env.production (ensure API URL is relative) ---
+echo "=== [2/5] Setting frontend env ==="
+cat > ../frontend/.env.production << 'ENV'
+VITE_API_URL=/api
+VITE_APP_NAME=BlackLightCollective
+ENV
 
-# --- Krok 3: Kopiowanie builda React do Django ---
-# WhiteNoise serwuje te pliki bezpośrednio z frontend_dist/
-echo "=== [3/4] Kopiowanie React builda do Django ==="
+# --- Krok 3: Build React ---
+echo "=== [3/5] Building React frontend ==="
+cd ../frontend
+npm install --legacy-peer-deps
+npm run build
+echo "React built! $(find dist -type f | wc -l) files"
+
+# --- Krok 4: Copy build to Django ---
+echo "=== [4/5] Copying React build to Django ==="
 rm -rf ../backend/frontend_dist
 mkdir -p ../backend/frontend_dist
 cp -r dist/* ../backend/frontend_dist/
-echo "Skopiowano $(find ../backend/frontend_dist -type f | wc -l) plików"
+echo "Copied $(find ../backend/frontend_dist -type f | wc -l) files to frontend_dist/"
 cd ../backend
 
-# --- Krok 4: Zebranie plików statycznych Django ---
-echo "=== [4/4] Collect static files ==="
+# --- Krok 5: Collect static ---
+echo "=== [5/5] Collecting static files ==="
 python manage.py collectstatic --noinput
 
 echo ""
 echo "========================================="
 echo "  BUILD COMPLETE!"
-echo "  Migrations will run on startup."
 echo "========================================="
