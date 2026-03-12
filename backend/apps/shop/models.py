@@ -240,7 +240,6 @@ class Payment(models.Model):
     shop_order = models.ForeignKey(
         ShopOrder, on_delete=models.CASCADE, null=True, blank=True, related_name='payments'
     )
-    )
     amount = models.DecimalField('Kwota', max_digits=12, decimal_places=2)
     currency = models.CharField('Waluta', max_length=3, default='PLN')
     provider = models.CharField('Dostawca', max_length=10, choices=PROVIDER_CHOICES)
