@@ -3,19 +3,22 @@
  * Renders the 3D grid boundary, ground grid, axis lines, and height
  * markers inside the R3F scene. All engine values are in cm;
  * Three.js units are in metres (÷100).
+ * Supports grid shapes: rectangle, square, and circle.
  */
 
 import { Grid, Line } from '@react-three/drei';
 import { useSceneBuilderStore } from '../../stores/sceneBuilderStore';
 import { useMemo } from 'react';
+import * as THREE from 'three';
 
 /**
  * CubicGrid — a visual representation of the scene's spatial boundaries.
  * Displays a floor grid, dashed boundary edges, height tick marks, and
  * coloured axis lines (X=red, Y=green, Z=blue).
+ * For 'circle' shape, renders a circular boundary ring on the ground.
  */
 export default function CubicGrid() {
-  const { engine, showGrid, gridCellDisplay } = useSceneBuilderStore();
+  const { engine, showGrid, gridCellDisplay, gridShape } = useSceneBuilderStore();
 
   // Read engine dimensions (cm)
   const gridW = engine.getGridWidth();
@@ -23,12 +26,12 @@ export default function CubicGrid() {
   const gridD = engine.getGridDepth();
 
   // Convert cm → metres for Three.js (1 unit = 1 metre)
-  const w = gridW / 100; // 20 m
-  const h = gridH / 100; // 10 m
-  const d = gridD / 100; // 20 m
+  const w = gridW / 100; // width in metres
+  const h = gridH / 100; // height in metres
+  const d = gridD / 100; // depth in metres
   const cellSize = gridCellDisplay / 100; // grid spacing in metres
 
-  // Precompute the 8 dashed boundary edge lines + 4 top edges
+  // Precompute the 8 dashed boundary edge lines + 4 top edges (for rectangle/square)
   const edgeLines = useMemo(() => {
     const lines: [number, number, number][][] = [
       // 4 vertical edges
@@ -55,6 +58,44 @@ export default function CubicGrid() {
     return markers;
   }, [h, cellSize]);
 
+  // Circle boundary points for 'circle' grid shape
+  const circlePoints = useMemo(() => {
+    if (gridShape !== 'circle') return null;
+    const radius = Math.min(w, d) / 2;
+    const cx = w / 2;
+    const cz = d / 2;
+    const segments = 64;
+    const points: THREE.Vector3[] = [];
+    for (let i = 0; i <= segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      points.push(new THREE.Vector3(
+        cx + Math.cos(angle) * radius,
+        0.002,
+        cz + Math.sin(angle) * radius
+      ));
+    }
+    return points;
+  }, [w, d, gridShape]);
+
+  // Circle top ring for 'circle' shape
+  const circleTopPoints = useMemo(() => {
+    if (gridShape !== 'circle') return null;
+    const radius = Math.min(w, d) / 2;
+    const cx = w / 2;
+    const cz = d / 2;
+    const segments = 64;
+    const points: THREE.Vector3[] = [];
+    for (let i = 0; i <= segments; i++) {
+      const angle = (i / segments) * Math.PI * 2;
+      points.push(new THREE.Vector3(
+        cx + Math.cos(angle) * radius,
+        h,
+        cz + Math.sin(angle) * radius
+      ));
+    }
+    return points;
+  }, [w, d, h, gridShape]);
+
   // Early return when grid is toggled off
   if (!showGrid) return null;
 
@@ -75,8 +116,8 @@ export default function CubicGrid() {
         infiniteGrid={false}
       />
 
-      {/* Dashed boundary edges */}
-      {edgeLines.map((points, i) => (
+      {/* Dashed boundary edges (rectangle/square shapes) */}
+      {gridShape !== 'circle' && edgeLines.map((points, i) => (
         <Line
           key={`edge-${i}`}
           points={points as any}
@@ -87,6 +128,54 @@ export default function CubicGrid() {
           gapSize={0.1}
         />
       ))}
+
+      {/* Circle boundary on ground for 'circle' shape */}
+      {gridShape === 'circle' && circlePoints && (
+        <Line
+          points={circlePoints}
+          color="#0f3460"
+          lineWidth={2}
+          dashed
+          dashSize={0.3}
+          gapSize={0.15}
+        />
+      )}
+
+      {/* Circle boundary on top for 'circle' shape */}
+      {gridShape === 'circle' && circleTopPoints && (
+        <Line
+          points={circleTopPoints}
+          color="#0f3460"
+          lineWidth={1}
+          dashed
+          dashSize={0.2}
+          gapSize={0.1}
+        />
+      )}
+
+      {/* Vertical lines for circle shape (4 cardinal points) */}
+      {gridShape === 'circle' && (() => {
+        const radius = Math.min(w, d) / 2;
+        const cx = w / 2;
+        const cz = d / 2;
+        const cardinals: [number, number, number][][] = [
+          [[cx + radius, 0, cz], [cx + radius, h, cz]],
+          [[cx - radius, 0, cz], [cx - radius, h, cz]],
+          [[cx, 0, cz + radius], [cx, h, cz + radius]],
+          [[cx, 0, cz - radius], [cx, h, cz - radius]],
+        ];
+        return cardinals.map((pts, i) => (
+          <Line
+            key={`circle-vert-${i}`}
+            points={pts as any}
+            color="#0f3460"
+            lineWidth={1}
+            dashed
+            dashSize={0.2}
+            gapSize={0.1}
+          />
+        ));
+      })()}
 
       {/* Height markers (red ticks on the Y axis) */}
       {heightMarkers.map((points, i) => (

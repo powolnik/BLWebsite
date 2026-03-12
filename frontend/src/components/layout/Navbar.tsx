@@ -20,7 +20,6 @@ const links = [
   { path: '/', label: 'Home' },
   { path: '/about', label: 'O nas' },
   { path: '/portfolio', label: 'Portfolio' },
-  { path: '/configurator', label: 'Konfigurator' },
   { path: '/scene-builder', label: '3D Builder' },
   { path: '/shop', label: 'Sklep' },
   { path: '/contact', label: 'Kontakt' },

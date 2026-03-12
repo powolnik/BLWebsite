@@ -32,7 +32,6 @@ INSTALLED_APPS = [
     # Aplikacje BLACK LIGHT Collective
     'apps.accounts',
     'apps.portfolio',
-    'apps.configurator',
     'apps.shop',
     'apps.notifications',
     'apps.scenebuilder',

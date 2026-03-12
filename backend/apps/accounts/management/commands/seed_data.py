@@ -9,7 +9,6 @@ from django.core.management.base import BaseCommand
 from django.utils import timezone
 from apps.accounts.models import CustomUser, UserAddress
 from apps.portfolio.models import Festival, TeamMember, Project, ProjectImage, Testimonial
-from apps.configurator.models import SceneTemplate, ComponentCategory, Component, Order, OrderItem
 from apps.shop.models import ProductCategory, Product, ProductImage as ShopProductImage, Coupon, ShopOrder, ShopOrderItem
 
 
@@ -33,7 +32,6 @@ class Command(BaseCommand):
         self._create_festivals()
         self._create_projects()
         self._create_testimonials()
-        self._create_configurator()
         self._create_shop()
         self._create_orders()
         self.stdout.write(self.style.SUCCESS('✅ Dane załadowane pomyślnie!'))
@@ -502,124 +500,6 @@ class Command(BaseCommand):
 
     # =========================================================================
     # CONFIGURATOR
-    # =========================================================================
-    def _create_configurator(self):
-        self.stdout.write('⚙️ Tworzenie szablonów i komponentów konfiguratora...')
-
-        # Scene Templates
-        templates_data = [
-            {
-                'name': 'Main Stage Classic',
-                'slug': 'main-stage-classic',
-                'description': 'Klasyczna scena główna dla dużych festiwali. Solidna konstrukcja aluminiowa, pełna infrastruktura oświetleniowa i dźwiękowa. Pojemność: 10 000–30 000 osób. Idealna jako punkt centralny każdego festiwalu.',
-                'base_price': Decimal('75000.00'),
-                'width': Decimal('30.00'),
-                'depth': Decimal('15.00'),
-                'height': Decimal('12.00'),
-            },
-            {
-                'name': 'Techno Bunker',
-                'slug': 'techno-bunker',
-                'description': 'Industrialna scena techno. Surowa, betonowa estetyka z agresywnym oświetleniem stroboskopowym i potężnym systemem basowym. Pojemność: 3 000–8 000 osób. Dla prawdziwych techno heads.',
-                'base_price': Decimal('45000.00'),
-                'width': Decimal('18.00'),
-                'depth': Decimal('12.00'),
-                'height': Decimal('8.00'),
-            },
-            {
-                'name': 'Forest Stage',
-                'slug': 'forest-stage',
-                'description': 'Organiczna scena leśna. Dekoracje UV, świecące instalacje w drzewach, naturalna sceneria. Pojemność: 2 000–5 000 osób. Magiczna atmosfera dla psytrance, progressive i deep techno.',
-                'base_price': Decimal('35000.00'),
-                'width': Decimal('15.00'),
-                'depth': Decimal('10.00'),
-                'height': Decimal('6.00'),
-            },
-            {
-                'name': 'Minimal Black Box',
-                'slug': 'minimal-black-box',
-                'description': 'Minimalistyczna czarna scena skupiona na laserach i dźwięku. Zero dekoracji — czysty dialog światło-muzyka. Pojemność: 500–2 000 osób. Idealna do techno, dub techno i ambient.',
-                'base_price': Decimal('25000.00'),
-                'width': Decimal('10.00'),
-                'depth': Decimal('8.00'),
-                'height': Decimal('5.00'),
-            },
-            {
-                'name': 'Beach Paradise',
-                'slug': 'beach-paradise',
-                'description': 'Scena plażowa z tropikalną estetyką. Bambusowe konstrukcje, LED palmy, wodne efekty. Pojemność: 5 000–15 000 osób. Na house, disco i melodic techno pod gołym niebem.',
-                'base_price': Decimal('55000.00'),
-                'width': Decimal('25.00'),
-                'depth': Decimal('12.00'),
-                'height': Decimal('10.00'),
-            },
-        ]
-
-        self.templates = []
-        for data in templates_data:
-            tmpl, _ = SceneTemplate.objects.get_or_create(slug=data['slug'], defaults=data)
-            self.templates.append(tmpl)
-
-        # Component Categories
-        categories_data = [
-            {'name': 'Oświetlenie', 'slug': 'oswietlenie', 'icon': '💡', 'description': 'Głowice ruchome, LED bary, lasery, stroboskopy, UV', 'order': 1},
-            {'name': 'Dźwięk', 'slug': 'dzwiek', 'icon': '🔊', 'description': 'Systemy nagłośnienia, subwoofery, monitory, procesory', 'order': 2},
-            {'name': 'Dekoracje', 'slug': 'dekoracje', 'icon': '🎨', 'description': 'Tkaniny UV, instalacje, kwiaty, rzeźby, elementy scenograficzne', 'order': 3},
-            {'name': 'Efekty specjalne', 'slug': 'efekty-specjalne', 'icon': '🔥', 'description': 'Pirotechnika, CO2, confetti, mgła, woda, bańki', 'order': 4},
-            {'name': 'Wizualizacje', 'slug': 'wizualizacje', 'icon': '🖥️', 'description': 'Projektory, ekrany LED, media serwery, mapping', 'order': 5},
-            {'name': 'Konstrukcja', 'slug': 'konstrukcja', 'icon': '🏗️', 'description': 'Kratownice, podesty, rigging, zadaszenie', 'order': 6},
-        ]
-
-        self.categories = []
-        for data in categories_data:
-            cat, _ = ComponentCategory.objects.get_or_create(slug=data['slug'], defaults=data)
-            self.categories.append(cat)
-
-        # Components
-        components_data = [
-            # Oświetlenie
-            {'category': self.categories[0], 'name': 'Martin MAC Aura XB', 'slug': 'martin-mac-aura-xb', 'description': 'Kompaktowa głowica wash LED z zoomem 11°-58°. 1220 lm, RGBW, piękne kolory pastele i mocne nasycone barwy.', 'price': Decimal('180.00'), 'power_consumption': 450, 'weight_kg': Decimal('6.8'), 'specs': {'type': 'moving_head_wash', 'lumens': 1220, 'zoom': '11-58°'}},
-            {'category': self.categories[0], 'name': 'Robe MegaPointe', 'slug': 'robe-megapointe', 'description': 'Hybrydowa głowica beam/spot/wash. Niezwykle jasna, ostre belki i gobo. Standard na dużych scenach.', 'price': Decimal('250.00'), 'power_consumption': 550, 'weight_kg': Decimal('17.5'), 'specs': {'type': 'moving_head_hybrid', 'lumens': 36000, 'zoom': '1.8-22°'}},
-            {'category': self.categories[0], 'name': 'Kvant Spectrum 30W Laser', 'slug': 'kvant-spectrum-30w', 'description': 'Profesjonalny laser pokazowy 30W full color RGB. Idealne do efektów tunelowych i geometrycznych.', 'price': Decimal('800.00'), 'power_consumption': 1500, 'weight_kg': Decimal('25.0'), 'specs': {'type': 'laser', 'power': '30W', 'colors': 'RGB full color'}},
-            {'category': self.categories[0], 'name': 'Stroboskop Atomic 3000 LED', 'slug': 'atomic-3000-led', 'description': 'Potężny stroboskop LED z efektem koloru. Ikoniczny na scenach techno.', 'price': Decimal('120.00'), 'power_consumption': 300, 'weight_kg': Decimal('8.0'), 'specs': {'type': 'strobe', 'lumens': 55000}},
-            {'category': self.categories[0], 'name': 'UV Bar 1m LED', 'slug': 'uv-bar-1m', 'description': 'Belka UV LED 1 metr. Idealna do oświetlenia dekoracji fluorescencyjnych.', 'price': Decimal('45.00'), 'power_consumption': 80, 'weight_kg': Decimal('3.0'), 'specs': {'type': 'uv_bar', 'length': '1m'}},
-
-            # Dźwięk
-            {'category': self.categories[1], 'name': 'Funktion-One Vero VX (para)', 'slug': 'f1-vero-vx', 'description': 'Topowy system line array. Krystalicznie czysty dźwięk od 55Hz, pokrycie do 100m.', 'price': Decimal('1200.00'), 'power_consumption': 2000, 'weight_kg': Decimal('45.0'), 'specs': {'type': 'line_array', 'freq': '55Hz-20kHz', 'spl': '139dB'}},
-            {'category': self.categories[1], 'name': 'Funktion-One F221 Bass (para)', 'slug': 'f1-f221-bass', 'description': 'Legendarny subwoofer 2×21". Głęboki, fizyczny bas, który czujesz w klatce piersiowej.', 'price': Decimal('800.00'), 'power_consumption': 3000, 'weight_kg': Decimal('110.0'), 'specs': {'type': 'subwoofer', 'drivers': '2x21"', 'freq': '28-100Hz'}},
-            {'category': self.categories[1], 'name': 'd&b audiotechnik SL-Sub', 'slug': 'db-sl-sub', 'description': 'Kardioidalny subwoofer z rodziny SL. Precyzyjna kontrola kierunkowości basu.', 'price': Decimal('600.00'), 'power_consumption': 2400, 'weight_kg': Decimal('75.0'), 'specs': {'type': 'subwoofer', 'drivers': '2x21"', 'cardioid': True}},
-            {'category': self.categories[1], 'name': 'Monitor wedge d&b M4', 'slug': 'db-m4-monitor', 'description': 'Kompaktowy monitor sceniczny. Czysty dźwięk dla DJ-a/artysty.', 'price': Decimal('150.00'), 'power_consumption': 600, 'weight_kg': Decimal('22.0'), 'specs': {'type': 'monitor', 'freq': '62Hz-18kHz'}},
-
-            # Dekoracje
-            {'category': self.categories[2], 'name': 'Tkanina UV Lycra 5m²', 'slug': 'tkanina-uv-5m2', 'description': 'Elastyczna tkanina fluorescencyjna, świeci pod UV. Różne wzory i kolory.', 'price': Decimal('85.00'), 'power_consumption': 0, 'weight_kg': Decimal('2.0'), 'specs': {'type': 'uv_fabric', 'area': '5m²'}},
-            {'category': self.categories[2], 'name': 'Instalacja kinetyczna "Wave" 3m', 'slug': 'instalacja-wave-3m', 'description': 'Ruchoma instalacja z elementami odbijającymi światło. Napędzana silnikami sterowanymi DMX.', 'price': Decimal('1500.00'), 'power_consumption': 200, 'weight_kg': Decimal('35.0'), 'specs': {'type': 'kinetic', 'dmx_channels': 8}},
-            {'category': self.categories[2], 'name': 'LED Neon Flex RGB (10m)', 'slug': 'led-neon-flex-10m', 'description': 'Elastyczny neon LED RGB, DMX sterowany. Do konturowania scen i dekoracji.', 'price': Decimal('120.00'), 'power_consumption': 80, 'weight_kg': Decimal('3.0'), 'specs': {'type': 'led_neon', 'length': '10m', 'pixels_per_m': 60}},
-            {'category': self.categories[2], 'name': 'Rzeźba LED "Totem" 4m', 'slug': 'rzezba-led-totem-4m', 'description': 'Wolnostojąca rzeźba LED o wysokości 4m. Wbudowane LED pixele, programowalna DMX/Art-Net.', 'price': Decimal('3500.00'), 'power_consumption': 500, 'weight_kg': Decimal('80.0'), 'specs': {'type': 'sculpture', 'height': '4m', 'leds': 2000}},
-
-            # Efekty specjalne
-            {'category': self.categories[3], 'name': 'CO2 Jet Cryo Cannon', 'slug': 'co2-jet-cryo', 'description': 'Wystrzał CO2 do 8m wysokości. Efektowny biały słup gazu — must-have na drop.', 'price': Decimal('350.00'), 'power_consumption': 50, 'weight_kg': Decimal('12.0'), 'specs': {'type': 'co2_jet', 'height': '8m'}},
-            {'category': self.categories[3], 'name': 'Confetti Blaster (jednorazowy)', 'slug': 'confetti-blaster', 'description': 'Wystrzał konfetti metalicznego. Różne kolory. Efekt WOW na finał seta.', 'price': Decimal('95.00'), 'power_consumption': 0, 'weight_kg': Decimal('3.0'), 'specs': {'type': 'confetti', 'range': '15m'}},
-            {'category': self.categories[3], 'name': 'Flame Machine DMX', 'slug': 'flame-machine-dmx', 'description': 'Kontrolowana maszyna ogniowa. Płomienie do 3m, sterowane DMX. Wymaga pirotechnika.', 'price': Decimal('500.00'), 'power_consumption': 100, 'weight_kg': Decimal('18.0'), 'specs': {'type': 'flame', 'height': '3m', 'fuel': 'propane'}},
-            {'category': self.categories[3], 'name': 'Antari HZ-500 Hazer', 'slug': 'antari-hz500', 'description': 'Profesjonalna wytwornica mgły na bazie oleju. Delikatna, równomierna mgła idealna do laserów.', 'price': Decimal('75.00'), 'power_consumption': 575, 'weight_kg': Decimal('9.0'), 'specs': {'type': 'hazer', 'fluid': 'oil-based'}},
-
-            # Wizualizacje
-            {'category': self.categories[4], 'name': 'Ekran LED P3.9 Indoor (1m²)', 'slug': 'ekran-led-p39', 'description': 'Moduł ekranu LED o pikselacji 3.9mm. Jasny, wyraźny obraz. Łączenie w dowolne kształty.', 'price': Decimal('200.00'), 'power_consumption': 800, 'weight_kg': Decimal('8.0'), 'specs': {'type': 'led_screen', 'pixel_pitch': '3.9mm', 'brightness': '5000 nits'}},
-            {'category': self.categories[4], 'name': 'Projektor Epson 20K lumen', 'slug': 'projektor-epson-20k', 'description': 'Profesjonalny projektor laserowy do projection mappingu. WUXGA, 24/7, ciche chłodzenie.', 'price': Decimal('450.00'), 'power_consumption': 900, 'weight_kg': Decimal('30.0'), 'specs': {'type': 'projector', 'lumens': 20000, 'resolution': 'WUXGA'}},
-            {'category': self.categories[4], 'name': 'Disguise D3 Media Server', 'slug': 'disguise-d3', 'description': 'Topowy media serwer do projection mappingu i sterowania treścią wideo. Standard w branży.', 'price': Decimal('1500.00'), 'power_consumption': 800, 'weight_kg': Decimal('15.0'), 'specs': {'type': 'media_server', 'outputs': 16, 'resolution': '8K'}},
-
-            # Konstrukcja
-            {'category': self.categories[5], 'name': 'Kratownica aluminiowa H40V (1m)', 'slug': 'kratownica-h40v-1m', 'description': 'Ciężka kratownica aluminiowa 40×40cm. Nośność 2000kg na 12m. Standard festiwalowy.', 'price': Decimal('35.00'), 'power_consumption': 0, 'weight_kg': Decimal('12.0'), 'specs': {'type': 'truss', 'size': '400x400mm', 'load': '2000kg/12m'}},
-            {'category': self.categories[5], 'name': 'Podest sceniczny 2×1m', 'slug': 'podest-sceniczny-2x1m', 'description': 'Regulowana wysokość 0.4-1.8m. Nośność 750kg/m². Antypoślizgowa powierzchnia.', 'price': Decimal('50.00'), 'power_consumption': 0, 'weight_kg': Decimal('35.0'), 'specs': {'type': 'stage_deck', 'size': '2x1m', 'height': '0.4-1.8m'}},
-            {'category': self.categories[5], 'name': 'Chain Hoist 1T (łańcuchowy)', 'slug': 'chain-hoist-1t', 'description': 'Elektryczny wciągnik łańcuchowy 1 tona. Do podnoszenia kratownic z oświetleniem i dźwiękiem.', 'price': Decimal('120.00'), 'power_consumption': 1500, 'weight_kg': Decimal('30.0'), 'specs': {'type': 'hoist', 'capacity': '1000kg', 'speed': '4m/min'}},
-        ]
-
-        for data in components_data:
-            Component.objects.get_or_create(slug=data['slug'], defaults=data)
-
-        self.stdout.write(f'   ✅ {SceneTemplate.objects.count()} szablonów, {ComponentCategory.objects.count()} kategorii, {Component.objects.count()} komponentów')
-
-    # =========================================================================
-    # SHOP
     # =========================================================================
     def _create_shop(self):
         self.stdout.write('🛒 Tworzenie produktów sklepu...')

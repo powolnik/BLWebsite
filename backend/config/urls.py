@@ -31,7 +31,6 @@ urlpatterns = [
     # API apps
     path('api/accounts/', include('apps.accounts.urls')),
     path('api/portfolio/', include('apps.portfolio.urls')),
-    path('api/configurator/', include('apps.configurator.urls')),
     path('api/shop/', include('apps.shop.urls')),
     path('api/scene-builder/', include('apps.scenebuilder.urls')),
 

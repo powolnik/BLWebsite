@@ -25,7 +25,7 @@ export default function Footer() {
           <div>
             <h3 className="text-sm font-semibold uppercase tracking-wider mb-4">Nawigacja</h3>
             <ul className="space-y-2">
-              {[['/', 'Home'], ['/portfolio', 'Portfolio'], ['/configurator', 'Konfigurator'], ['/shop', 'Sklep'], ['/contact', 'Kontakt']].map(([p, l]) => (
+              {[['/', 'Home'], ['/portfolio', 'Portfolio'], ['/scene-builder', 'Scene Builder'], ['/shop', 'Sklep'], ['/contact', 'Kontakt']].map(([p, l]) => (
                 <li key={p}><Link to={p} className="text-sm text-[var(--color-text-secondary)] hover:text-[var(--color-neon-green)]">{l}</Link></li>
               ))}
             </ul>

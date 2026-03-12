@@ -219,6 +219,19 @@ export class SceneEngine implements ISceneEngine {
   getGridDepth(): number { return this.gridD; }
   getCellSize(): number { return this.cellSize; }
 
+  /**
+   * Resize the grid to new dimensions and rebuild the octree.
+   * @param w  New width in cm
+   * @param h  New height in cm
+   * @param d  New depth in cm
+   */
+  resizeGrid(w: number, h: number, d: number): void {
+    this.gridW = w;
+    this.gridH = h;
+    this.gridD = d;
+    this.rebuildOctree();
+  }
+
   // ─── AABB computation ───
 
   /**

@@ -64,7 +64,6 @@ blacklight-project/
 │   ├── apps/
 │   │   ├── accounts/        # Użytkownicy, role, JWT auth
 │   │   ├── portfolio/       # Projekty, zespół, festiwale
-│   │   ├── configurator/    # Kreator zamówień scen
 │   │   ├── shop/            # Sklep: produkty, koszyk, zamówienia
 │   │   └── notifications/   # Email/SMS (Celery tasks)
 │   └── requirements/
@@ -114,8 +113,6 @@ blacklight-project/
 |---|---|
 | `POST /api/token/` | Logowanie (JWT) |
 | `GET /api/portfolio/projects/` | Lista projektów |
-| `GET /api/configurator/templates/` | Szablony scen |
-| `POST /api/configurator/orders/` | Nowe zamówienie sceny |
 | `GET /api/shop/products/` | Produkty sklepu |
 | `POST /api/shop/cart/` | Dodaj do koszyka |
 | `POST /api/shop/checkout/` | Złóż zamówienie |

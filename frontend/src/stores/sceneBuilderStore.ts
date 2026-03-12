@@ -33,6 +33,13 @@ interface SceneBuilderState {
   showPhysics: boolean;
   gridCellDisplay: number; // visual grid cell size in cm (e.g., 10, 50, 100)
 
+  // ── Drag state ─────────────────────────────────────
+  isDragging: boolean;
+  dragObjectId: number | null;
+
+  // ── Grid shape ─────────────────────────────────────
+  gridShape: 'square' | 'circle' | 'rectangle';
+
   // ── Available models from API ──────────────────────
   availableModels: Model3D[];
 
@@ -55,6 +62,9 @@ interface SceneBuilderState {
   clearScene: () => void;
   getSceneJSON: () => object;
   loadSceneJSON: (json: any) => void;
+  setDragging: (isDragging: boolean, objectId?: number | null) => void;
+  setGridShape: (shape: 'square' | 'circle' | 'rectangle') => void;
+  resizeGrid: (w: number, h: number, d: number) => void;
 }
 
 /**
@@ -74,6 +84,9 @@ export const useSceneBuilderStore = create<SceneBuilderState>((set, get) => ({
   showPhysics: true,
   gridCellDisplay: 100, // show grid lines every 1 m by default
   availableModels: [],
+  isDragging: false,
+  dragObjectId: null,
+  gridShape: 'rectangle',
 
   /** Replace the full model catalogue (called after API fetch) */
   setAvailableModels: (models) => set({ availableModels: models }),
@@ -196,6 +209,7 @@ export const useSceneBuilderStore = create<SceneBuilderState>((set, get) => ({
       selectedObjectId: null,
       collisions: new Map(),
       physics: { totalWeight: 0, centerOfMass: { x: 0, y: 0, z: 0 }, balanceScore: 1, isStable: true, maxLoadPerArea: 0 },
+      gridShape: 'rectangle',
     });
   },
 
@@ -215,6 +229,33 @@ export const useSceneBuilderStore = create<SceneBuilderState>((set, get) => ({
       if (data) newMap.set(id, data);
     }
     set({ sceneObjects: newMap, selectedObjectId: null });
+    get().refreshPhysics();
+    get().refreshCollisions();
+  },
+
+  /** Set drag state */
+  setDragging: (isDragging, objectId) => {
+    set({ isDragging, dragObjectId: objectId ?? null });
+  },
+
+  /** Set grid shape */
+  setGridShape: (shape) => {
+    set({ gridShape: shape });
+  },
+
+  /** Resize the grid (dimensions in metres, converted to cm for engine) */
+  resizeGrid: (w, h, d) => {
+    const { engine } = get();
+    engine.resizeGrid(w * 100, h * 100, d * 100);
+
+    // Rebuild sceneObjects map from engine
+    const newMap = new Map<number, SceneObjectData>();
+    for (const id of engine.getAllObjectIds()) {
+      const data = engine.getObjectData(id);
+      if (data) newMap.set(id, data);
+    }
+
+    set({ sceneObjects: newMap });
     get().refreshPhysics();
     get().refreshCollisions();
   },

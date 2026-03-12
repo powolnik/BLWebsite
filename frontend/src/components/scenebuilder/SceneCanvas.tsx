@@ -2,7 +2,7 @@
  * BLACK LIGHT Collective — Scene Builder 3D Canvas
  * React Three Fiber canvas that renders the 3D scene.
  * Contains the ground plane, grid, scene objects, physics indicators,
- * and orbit camera controls.
+ * and orbit camera controls. OrbitControls are disabled during drag.
  */
 
 import { Canvas } from '@react-three/fiber';
@@ -23,6 +23,7 @@ function SceneContent() {
   const engine = useSceneBuilderStore(s => s.engine);
   const showPhysics = useSceneBuilderStore(s => s.showPhysics);
   const physics = useSceneBuilderStore(s => s.physics);
+  const isDragging = useSceneBuilderStore(s => s.isDragging);
 
   /** Clicking the ground plane deselects any selected object */
   const handleGroundClick = useCallback(() => {
@@ -77,9 +78,10 @@ function SceneContent() {
         </mesh>
       )}
 
-      {/* Orbit camera controls with constrained zoom */}
+      {/* Orbit camera controls with constrained zoom — disabled during drag */}
       <OrbitControls
         makeDefault
+        enabled={!isDragging}
         minDistance={2}
         maxDistance={50}
         target={[gridW / 2, 0, gridD / 2]}

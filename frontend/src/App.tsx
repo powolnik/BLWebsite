@@ -15,7 +15,6 @@ import NotFound from './pages/NotFound';
 import Loader from './components/ui/Loader';
 
 // Lazy-load heavy pages (Three.js, SceneEngine, etc.)
-const Configurator = lazy(() => import('./pages/Configurator'));
 const SceneBuilder = lazy(() => import('./pages/SceneBuilder'));
 
 function LazyFallback() {
@@ -34,7 +33,6 @@ export default function App() {
         <Route path="/about" element={<About />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
-        <Route path="/configurator" element={<Suspense fallback={<LazyFallback />}><Configurator /></Suspense>} />
         <Route path="/scene-builder" element={<Suspense fallback={<LazyFallback />}><SceneBuilder /></Suspense>} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/shop/:slug" element={<ProductDetail />} />

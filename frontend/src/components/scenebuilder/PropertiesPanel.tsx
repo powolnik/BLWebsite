@@ -3,6 +3,7 @@
  * Right-side panel in the Scene Builder showing:
  * - Transform tool selector (translate / rotate / scale)
  * - Grid, collision, and physics toggles
+ * - Grid dimensions and shape controls
  * - Selected object properties (position, rotation, scale)
  * - Scene-wide physics stats (weight, CoM, balance, stability)
  * - Export / clear actions
@@ -26,7 +27,8 @@ export default function PropertiesPanel() {
     transformMode, showGrid, showCollisions, showPhysics, gridCellDisplay,
     moveSceneObject, rotateSceneObject, scaleSceneObject, removeSceneObject,
     setTransformMode, toggleGrid, toggleCollisions, togglePhysics, setGridCellDisplay,
-    clearScene, getSceneJSON, engine
+    clearScene, getSceneJSON, engine,
+    resizeGrid, gridShape, setGridShape
   } = useSceneBuilderStore();
 
   // Resolve selected object and its model metadata
@@ -140,6 +142,85 @@ export default function PropertiesPanel() {
             <option value={200}>2m</option>
             <option value={500}>5m</option>
           </select>
+        </div>
+      </div>
+
+      {/* ── Grid dimensions & shape ──────────────────── */}
+      <div className="p-3 border-b border-[#1a1a3e]">
+        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">📐 Wymiary siatki</h3>
+
+        {/* Shape selector */}
+        <div className="flex gap-1 mb-2">
+          {(['rectangle', 'square', 'circle'] as const).map(shape => (
+            <button
+              key={shape}
+              onClick={() => {
+                setGridShape(shape);
+                const w = engine.getGridWidth() / 100;
+                const h = engine.getGridHeight() / 100;
+                const d = engine.getGridDepth() / 100;
+                if (shape === 'square') resizeGrid(w, h, w);
+                else if (shape === 'circle') resizeGrid(Math.max(w, d), h, Math.max(w, d));
+                else resizeGrid(w, h, d);
+              }}
+              className={clsx(
+                'flex-1 py-1 rounded text-[10px] transition-colors',
+                gridShape === shape ? 'bg-purple-500/20 text-purple-400 border border-purple-500/30' : 'bg-[#1a1a2e] text-gray-500'
+              )}
+            >
+              {shape === 'rectangle' ? '▬ Prostokąt' : shape === 'square' ? '■ Kwadrat' : '● Koło'}
+            </button>
+          ))}
+        </div>
+
+        {/* Dimension inputs */}
+        <div className="grid grid-cols-3 gap-1">
+          <div>
+            <span className="text-[10px] text-gray-500">Szer. (m)</span>
+            <input
+              type="number"
+              value={engine.getGridWidth() / 100}
+              min={5}
+              max={100}
+              step={1}
+              onChange={e => {
+                const v = Number(e.target.value) || 20;
+                resizeGrid(v, engine.getGridHeight() / 100, gridShape === 'square' || gridShape === 'circle' ? v : engine.getGridDepth() / 100);
+              }}
+              className="w-full bg-[#1a1a2e] border border-[#2a2a4e] rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-cyan-500/50"
+            />
+          </div>
+          <div>
+            <span className="text-[10px] text-gray-500">Wys. (m)</span>
+            <input
+              type="number"
+              value={engine.getGridHeight() / 100}
+              min={3}
+              max={50}
+              step={1}
+              onChange={e => {
+                const v = Number(e.target.value) || 10;
+                resizeGrid(engine.getGridWidth() / 100, v, engine.getGridDepth() / 100);
+              }}
+              className="w-full bg-[#1a1a2e] border border-[#2a2a4e] rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-cyan-500/50"
+            />
+          </div>
+          <div>
+            <span className="text-[10px] text-gray-500">Głęb. (m)</span>
+            <input
+              type="number"
+              value={engine.getGridDepth() / 100}
+              min={5}
+              max={100}
+              step={1}
+              disabled={gridShape === 'square' || gridShape === 'circle'}
+              onChange={e => {
+                const v = Number(e.target.value) || 20;
+                resizeGrid(engine.getGridWidth() / 100, engine.getGridHeight() / 100, v);
+              }}
+              className="w-full bg-[#1a1a2e] border border-[#2a2a4e] rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-cyan-500/50 disabled:opacity-40"
+            />
+          </div>
         </div>
       </div>
 

@@ -14,21 +14,45 @@ import type { Model3D, Model3DCategory } from '../../engine/types';
 // ═══════════════════════════════════════════════════════
 
 const DEMO_MODELS: Model3D[] = [
+  // ── Obiekty UFO ──
   { id: 1, category: { id: 1, name: 'Obiekty UFO', slug: 'ufo', icon: '🛸', order: 1 }, name: 'UFO Ø2m', slug: 'ufo-2m', description: 'Mały obiekt UFO', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 200, bbox_height: 80, bbox_depth: 200, weight: 15, max_instances: 5, price_per_unit: 500, power_consumption: 200, is_active: true },
   { id: 2, category: { id: 1, name: 'Obiekty UFO', slug: 'ufo', icon: '🛸', order: 1 }, name: 'UFO Ø4m', slug: 'ufo-4m', description: 'Średni obiekt UFO', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 400, bbox_height: 120, bbox_depth: 400, weight: 45, max_instances: 3, price_per_unit: 1200, power_consumption: 500, is_active: true },
   { id: 3, category: { id: 1, name: 'Obiekty UFO', slug: 'ufo', icon: '🛸', order: 1 }, name: 'UFO Ø6m', slug: 'ufo-6m', description: 'Duży obiekt UFO', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 600, bbox_height: 180, bbox_depth: 600, weight: 85, max_instances: 2, price_per_unit: 2500, power_consumption: 800, is_active: true },
+
+  // ── Las/Drzewa ──
   { id: 4, category: { id: 2, name: 'Las/Drzewa', slug: 'trees', icon: '🌲', order: 2 }, name: 'Drzewo LED 3m', slug: 'tree-3m', description: 'Świecące drzewo LED', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 150, bbox_height: 300, bbox_depth: 150, weight: 25, max_instances: 20, price_per_unit: 300, power_consumption: 150, is_active: true },
   { id: 5, category: { id: 2, name: 'Las/Drzewa', slug: 'trees', icon: '🌲', order: 2 }, name: 'Drzewo LED 5m', slug: 'tree-5m', description: 'Duże świecące drzewo', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 250, bbox_height: 500, bbox_depth: 250, weight: 50, max_instances: 10, price_per_unit: 600, power_consumption: 300, is_active: true },
+
+  // ── Lasery ──
   { id: 6, category: { id: 3, name: 'Lasery', slug: 'lasers', icon: '✨', order: 3 }, name: 'Laser RGB Compact', slug: 'laser-rgb', description: 'Kompaktowy laser RGB', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 30, bbox_height: 20, bbox_depth: 30, weight: 5, max_instances: 20, price_per_unit: 200, power_consumption: 50, is_active: true },
   { id: 7, category: { id: 3, name: 'Lasery', slug: 'lasers', icon: '✨', order: 3 }, name: 'Laser 5W Show', slug: 'laser-5w', description: 'Laser show 5W', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 40, bbox_height: 25, bbox_depth: 40, weight: 8, max_instances: 10, price_per_unit: 500, power_consumption: 200, is_active: true },
+
+  // ── LED ──
   { id: 8, category: { id: 4, name: 'LED', slug: 'led', icon: '💡', order: 4 }, name: 'Panel LED 1x1m', slug: 'led-panel', description: 'Panel LED 1x1m', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 100, bbox_height: 100, bbox_depth: 10, weight: 8, max_instances: 50, price_per_unit: 150, power_consumption: 100, is_active: true },
   { id: 9, category: { id: 4, name: 'LED', slug: 'led', icon: '💡', order: 4 }, name: 'Pixel Tube 1m', slug: 'pixel-tube', description: 'LED pixel tube', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 5, bbox_height: 100, bbox_depth: 5, weight: 2, max_instances: 100, price_per_unit: 50, power_consumption: 20, is_active: true },
+
+  // ── Konstrukcje ──
   { id: 10, category: { id: 5, name: 'Konstrukcje', slug: 'constructions', icon: '🔧', order: 5 }, name: 'Truss 3m', slug: 'truss-3m', description: 'Kratownica 3m', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 30, bbox_height: 30, bbox_depth: 300, weight: 35, max_instances: 20, price_per_unit: 200, power_consumption: 0, is_active: true },
   { id: 11, category: { id: 5, name: 'Konstrukcje', slug: 'constructions', icon: '🔧', order: 5 }, name: 'Arch 6m', slug: 'arch-6m', description: 'Łuk dekoracyjny 6m', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 600, bbox_height: 400, bbox_depth: 30, weight: 80, max_instances: 5, price_per_unit: 800, power_consumption: 0, is_active: true },
   { id: 12, category: { id: 5, name: 'Konstrukcje', slug: 'constructions', icon: '🔧', order: 5 }, name: 'Totem 4m', slug: 'totem-4m', description: 'Totem dekoracyjny', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 50, bbox_height: 400, bbox_depth: 50, weight: 40, max_instances: 10, price_per_unit: 400, power_consumption: 100, is_active: true },
+
+  // ── Efekty ──
   { id: 13, category: { id: 6, name: 'Efekty', slug: 'effects', icon: '💨', order: 6 }, name: 'Wytwornica mgły', slug: 'fog-machine', description: 'Wytwornica mgły', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 40, bbox_height: 30, bbox_depth: 40, weight: 12, max_instances: 10, price_per_unit: 100, power_consumption: 1000, is_active: true },
   { id: 14, category: { id: 6, name: 'Efekty', slug: 'effects', icon: '💨', order: 6 }, name: 'CO2 Jet', slug: 'co2-jet', description: 'Wyrzutnia CO2', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 20, bbox_height: 60, bbox_depth: 20, weight: 15, max_instances: 8, price_per_unit: 300, power_consumption: 50, is_active: true },
   { id: 15, category: { id: 6, name: 'Efekty', slug: 'effects', icon: '💨', order: 6 }, name: 'Confetti Cannon', slug: 'confetti', description: 'Wyrzutnia confetti', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 15, bbox_height: 50, bbox_depth: 15, weight: 10, max_instances: 6, price_per_unit: 250, power_consumption: 30, is_active: true },
+
+  // ── DJ Stoły / Bitki ──
+  { id: 16, category: { id: 7, name: 'DJ Stoły / Bitki', slug: 'dj-tables', icon: '🎧', order: 7 }, name: 'DJ Table Standard', slug: 'dj-table-standard', description: 'Standardowy stół DJ', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 200, bbox_height: 100, bbox_depth: 80, weight: 45, max_instances: 5, price_per_unit: 800, power_consumption: 0, is_active: true },
+  { id: 17, category: { id: 7, name: 'DJ Stoły / Bitki', slug: 'dj-tables', icon: '🎧', order: 7 }, name: 'DJ Table Large', slug: 'dj-table-large', description: 'Duży stół DJ', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 300, bbox_height: 120, bbox_depth: 90, weight: 65, max_instances: 3, price_per_unit: 1200, power_consumption: 0, is_active: true },
+  { id: 18, category: { id: 7, name: 'DJ Stoły / Bitki', slug: 'dj-tables', icon: '🎧', order: 7 }, name: 'DJ Booth Pioneer', slug: 'dj-booth-pioneer', description: 'Booth z wbudowanymi panelami', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 250, bbox_height: 110, bbox_depth: 85, weight: 55, max_instances: 3, price_per_unit: 1500, power_consumption: 100, is_active: true },
+  { id: 19, category: { id: 7, name: 'DJ Stoły / Bitki', slug: 'dj-tables', icon: '🎧', order: 7 }, name: 'Podest DJ 2x2m', slug: 'dj-riser-2x2', description: 'Podest/riser pod DJ', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 200, bbox_height: 40, bbox_depth: 200, weight: 80, max_instances: 4, price_per_unit: 600, power_consumption: 0, is_active: true },
+  { id: 20, category: { id: 7, name: 'DJ Stoły / Bitki', slug: 'dj-tables', icon: '🎧', order: 7 }, name: 'Stół Techniczny', slug: 'tech-table', description: 'Stół na sprzęt techniczny', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 150, bbox_height: 80, bbox_depth: 60, weight: 30, max_instances: 10, price_per_unit: 300, power_consumption: 0, is_active: true },
+  { id: 21, category: { id: 7, name: 'DJ Stoły / Bitki', slug: 'dj-tables', icon: '🎧', order: 7 }, name: 'CDJ Stand', slug: 'cdj-stand', description: 'Stolik pod CDJ', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 60, bbox_height: 100, bbox_depth: 40, weight: 15, max_instances: 10, price_per_unit: 200, power_consumption: 0, is_active: true },
+
+  // ── Scena / Podesty ──
+  { id: 22, category: { id: 8, name: 'Scena / Podesty', slug: 'stage', icon: '🎪', order: 8 }, name: 'Podest sceniczny 2x1m', slug: 'stage-2x1', description: 'Podest sceniczny 2x1m', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 200, bbox_height: 40, bbox_depth: 100, weight: 50, max_instances: 20, price_per_unit: 400, power_consumption: 0, is_active: true },
+  { id: 23, category: { id: 8, name: 'Scena / Podesty', slug: 'stage', icon: '🎪', order: 8 }, name: 'Podest sceniczny 4x2m', slug: 'stage-4x2', description: 'Podest sceniczny 4x2m', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 400, bbox_height: 40, bbox_depth: 200, weight: 120, max_instances: 10, price_per_unit: 900, power_consumption: 0, is_active: true },
+  { id: 24, category: { id: 8, name: 'Scena / Podesty', slug: 'stage', icon: '🎪', order: 8 }, name: 'Rampa sceniczna', slug: 'stage-ramp', description: 'Rampa sceniczna', model_file: '', model_file_url: '', thumbnail: null, bbox_width: 300, bbox_height: 80, bbox_depth: 100, weight: 70, max_instances: 6, price_per_unit: 700, power_consumption: 0, is_active: true },
 ];
 
 /**
