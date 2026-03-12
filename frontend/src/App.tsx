@@ -19,7 +19,7 @@ const SceneBuilder = lazy(() => import('./pages/SceneBuilder'));
 
 function LazyFallback() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="min-h-screen flex items-center justify-center bg-[#0a0a14]">
       <Loader />
     </div>
   );
@@ -28,12 +28,22 @@ function LazyFallback() {
 export default function App() {
   return (
     <Routes>
+      {/* Scene Builder — full-screen, NO navbar/footer */}
+      <Route
+        path="/scene-builder"
+        element={
+          <Suspense fallback={<LazyFallback />}>
+            <SceneBuilder />
+          </Suspense>
+        }
+      />
+
+      {/* All other pages — with Navbar + Footer */}
       <Route element={<Layout />}>
         <Route path="/" element={<Home />} />
         <Route path="/about" element={<About />} />
         <Route path="/portfolio" element={<Portfolio />} />
         <Route path="/portfolio/:slug" element={<PortfolioDetail />} />
-        <Route path="/scene-builder" element={<Suspense fallback={<LazyFallback />}><SceneBuilder /></Suspense>} />
         <Route path="/shop" element={<Shop />} />
         <Route path="/shop/:slug" element={<ProductDetail />} />
         <Route path="/cart" element={<CartPage />} />

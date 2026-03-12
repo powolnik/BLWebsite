@@ -1,8 +1,8 @@
 /**
  * BLACK LIGHT Collective — Scene Object 3D
  * R3F component that renders a single scene object as a translucent
- * bounding box with a wireframe overlay. Supports mouse drag to reposition.
- * Colour changes based on selection, hover, and collision state.
+ * bounding box with a wireframe overlay. Supports click-to-select
+ * and mouse drag to reposition on the horizontal plane.
  */
 
 import { useRef, useState, useEffect, useCallback } from 'react';
@@ -11,31 +11,32 @@ import { useSceneBuilderStore } from '../../stores/sceneBuilderStore';
 import type { SceneObjectData } from '../../engine/types';
 import * as THREE from 'three';
 
-/** Props for SceneObject3D */
 interface Props {
   objectData: SceneObjectData;
 }
 
-/**
- * SceneObject3D — renders a single object in the 3D scene.
- * Uses a coloured box for the solid body and a wireframe overlay for edges.
- * Colour logic: cyan (default) → red (colliding) → orange (selected) → green (hovered).
- * Supports drag-to-move on the horizontal plane.
- */
+/** No-op raycast function — makes a mesh invisible to pointer events */
+const noRaycast = () => null;
+
 export default function SceneObject3D({ objectData }: Props) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { selectedObjectId, collisions, showCollisions, selectObject, setHoveredObject, moveSceneObject, setDragging, dragObjectId } = useSceneBuilderStore();
+  const {
+    selectedObjectId, collisions, showCollisions,
+    selectObject, setHoveredObject, moveSceneObject,
+    setDragging, dragObjectId
+  } = useSceneBuilderStore();
+
   const [hovered, setHovered] = useState(false);
   const { camera, gl } = useThree();
-  const dragRef = useRef({ active: false, startMouse: new THREE.Vector2(), startPos: new THREE.Vector3() });
+
+  // Drag state refs
+  const dragRef = useRef({ active: false, startPos: new THREE.Vector3() });
   const planeRef = useRef(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
   const raycaster = useRef(new THREE.Raycaster());
   const intersectPoint = useRef(new THREE.Vector3());
 
   const isSelected = selectedObjectId === objectData.id;
   const isColliding = showCollisions && collisions.has(objectData.id);
-
-  // Look up model metadata for labels (name, category, etc.)
 
   // Convert engine cm → Three.js metres
   const pos: [number, number, number] = [
@@ -44,48 +45,60 @@ export default function SceneObject3D({ objectData }: Props) {
     objectData.position.z / 100
   ];
 
-  // Scaled bounding box size in metres
   const sizeArr: [number, number, number] = [
     (objectData.bboxSize.x * objectData.scale.x) / 100,
     (objectData.bboxSize.y * objectData.scale.y) / 100,
     (objectData.bboxSize.z * objectData.scale.z) / 100
   ];
 
-  // Convert Euler degrees → radians using THREE.MathUtils
   const rot: [number, number, number] = [
     THREE.MathUtils.degToRad(objectData.rotation.x),
     THREE.MathUtils.degToRad(objectData.rotation.y),
     THREE.MathUtils.degToRad(objectData.rotation.z)
   ];
 
-  // Determine colour based on object state (priority: collision > selected > hovered > default)
-  let color = '#00d4ff'; // default cyan
+  // Colour based on state: collision > selected > hovered > default
+  let color = '#00d4ff';
   if (isColliding) color = '#ff2244';
   if (isSelected) color = '#ffaa00';
   if (hovered && !isSelected) color = '#44ffaa';
 
+  /** Pointer down — select + start drag */
   const handlePointerDown = useCallback((e: any) => {
     e.stopPropagation();
     selectObject(objectData.id);
 
-    // Start drag
     dragRef.current.active = true;
-    dragRef.current.startPos.set(objectData.position.x, objectData.position.y, objectData.position.z);
+    dragRef.current.startPos.set(
+      objectData.position.x, objectData.position.y, objectData.position.z
+    );
 
-    // Set drag plane at object's Y height (in world units = cm/100)
-    planeRef.current.set(new THREE.Vector3(0, 1, 0), -objectData.position.y / 100);
-
-    // Record mouse position in NDC
-    const rect = gl.domElement.getBoundingClientRect();
-    dragRef.current.startMouse.set(
-      ((e.clientX - rect.left) / rect.width) * 2 - 1,
-      -((e.clientY - rect.top) / rect.height) * 2 + 1
+    // Drag plane at object's Y height (world units = metres)
+    planeRef.current.set(
+      new THREE.Vector3(0, 1, 0),
+      -objectData.position.y / 100
     );
 
     setDragging(true, objectData.id);
     gl.domElement.style.cursor = 'grabbing';
   }, [objectData.id, objectData.position, selectObject, setDragging, gl]);
 
+  /** Pointer over — hover highlight */
+  const handlePointerOver = useCallback((e: any) => {
+    e.stopPropagation();
+    setHovered(true);
+    setHoveredObject(objectData.id);
+    if (!dragRef.current.active) gl.domElement.style.cursor = 'grab';
+  }, [objectData.id, setHoveredObject, gl]);
+
+  /** Pointer out — remove hover */
+  const handlePointerOut = useCallback(() => {
+    setHovered(false);
+    setHoveredObject(null);
+    if (!dragRef.current.active) gl.domElement.style.cursor = 'auto';
+  }, [setHoveredObject, gl]);
+
+  // Global pointer move/up for drag
   useEffect(() => {
     const handlePointerMove = (e: PointerEvent) => {
       if (!dragRef.current.active || dragObjectId !== objectData.id) return;
@@ -98,7 +111,6 @@ export default function SceneObject3D({ objectData }: Props) {
 
       raycaster.current.setFromCamera(mouse, camera);
       if (raycaster.current.ray.intersectPlane(planeRef.current, intersectPoint.current)) {
-        // Convert back to cm
         const newX = intersectPoint.current.x * 100;
         const newZ = intersectPoint.current.z * 100;
         moveSceneObject(objectData.id, newX, objectData.position.y, newZ);
@@ -123,12 +135,12 @@ export default function SceneObject3D({ objectData }: Props) {
 
   return (
     <group position={pos} rotation={rot}>
-      {/* Solid translucent mesh — handles click, drag, and hover events */}
+      {/* Solid translucent mesh — handles all pointer events */}
       <mesh
         ref={meshRef}
         onPointerDown={handlePointerDown}
-        onPointerOver={(e: any) => { e.stopPropagation(); setHovered(true); setHoveredObject(objectData.id); gl.domElement.style.cursor = 'grab'; }}
-        onPointerOut={() => { setHovered(false); setHoveredObject(null); if (!dragRef.current.active) gl.domElement.style.cursor = 'auto'; }}
+        onPointerOver={handlePointerOver}
+        onPointerOut={handlePointerOut}
       >
         <boxGeometry args={sizeArr} />
         <meshStandardMaterial
@@ -140,11 +152,23 @@ export default function SceneObject3D({ objectData }: Props) {
         />
       </mesh>
 
-      {/* Wireframe overlay for edge visibility */}
-      <mesh>
+      {/* Wireframe overlay — MUST NOT intercept raycasts */}
+      <mesh raycast={noRaycast}>
         <boxGeometry args={sizeArr} />
         <meshBasicMaterial color={color} wireframe transparent opacity={0.8} />
       </mesh>
+
+      {/* Selection indicator ring */}
+      {isSelected && (
+        <mesh position={[0, -sizeArr[1] / 2 + 0.01, 0]} rotation={[-Math.PI / 2, 0, 0]} raycast={noRaycast}>
+          <ringGeometry args={[
+            Math.max(sizeArr[0], sizeArr[2]) * 0.6,
+            Math.max(sizeArr[0], sizeArr[2]) * 0.65,
+            32
+          ]} />
+          <meshBasicMaterial color="#ffaa00" transparent opacity={0.6} />
+        </mesh>
+      )}
     </group>
   );
 }
