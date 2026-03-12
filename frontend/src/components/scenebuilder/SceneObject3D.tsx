@@ -24,7 +24,7 @@ interface Props {
  */
 export default function SceneObject3D({ objectData }: Props) {
   const meshRef = useRef<THREE.Mesh>(null);
-  const { selectedObjectId, collisions, showCollisions, selectObject, setHoveredObject, availableModels, moveSceneObject, setDragging, dragObjectId } = useSceneBuilderStore();
+  const { selectedObjectId, collisions, showCollisions, selectObject, setHoveredObject, moveSceneObject, setDragging, dragObjectId } = useSceneBuilderStore();
   const [hovered, setHovered] = useState(false);
   const { camera, gl } = useThree();
   const dragRef = useRef({ active: false, startMouse: new THREE.Vector2(), startPos: new THREE.Vector3() });
