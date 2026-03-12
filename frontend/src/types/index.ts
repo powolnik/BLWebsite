@@ -27,19 +27,6 @@ export interface Testimonial {
   project_title: string; rating: number; created_at: string;
 }
 
-export interface OrderItem {
-  id: number; component: number; component_name: string; component_icon: string; component_color: string;
-  quantity: number; unit_price: string; subtotal: string;
-  position_data: Record<string, unknown>; notes: string;
-}
-export interface SceneOrder {
-  id: number; template: SceneTemplate | null; template_name?: string; status: string;
-  event_name: string; event_date: string; event_end_date: string | null;
-  event_location: string; expected_audience: number; subtotal: string;
-  template_price: string; discount: string; total_price: string;
-  notes: string; scene_data: Record<string, unknown>; items: OrderItem[];
-  item_count?: number; created_at: string; updated_at: string;
-}
 
 // === SHOP ===
 export interface ProductCategory {
