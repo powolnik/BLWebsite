@@ -3,7 +3,7 @@
 
 ## 🏗️ Architektura
 
-```
+``` 
 Backend:  Django 5.1 + DRF + PostgreSQL + Redis + Celery  
 Frontend: React 19 + TypeScript + Vite + TailwindCSS 4 + Zustand + React Query
 DevOps:   Docker Compose (dev) | Render + Vercel (prod)
